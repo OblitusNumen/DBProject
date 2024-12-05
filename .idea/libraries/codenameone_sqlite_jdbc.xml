@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="codenameone.sqlite.jdbc" type="repository">
+    <properties maven-id="com.codenameone:sqlite-jdbc:7.0.165" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/sqlite-jdbc-7.0.165.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
