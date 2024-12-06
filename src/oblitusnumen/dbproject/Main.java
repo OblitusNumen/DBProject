@@ -2,6 +2,7 @@ package oblitusnumen.dbproject;
 
 import oblitusnumen.dbproject.db.DBManager;
 import oblitusnumen.dbproject.db.models.Gost;
+import oblitusnumen.dbproject.db.models.CalculationParameters;
 import oblitusnumen.dbproject.db.models.Parameters;
 import oblitusnumen.dbproject.ui.TableWindow;
 
@@ -11,7 +12,7 @@ import java.util.*;
 public class Main {
     DBManager dbManager = new DBManager();
     Map<String, TableWindow<?>> tableMonitors = new HashMap<>();
-    Parameters currentParameters;
+    CalculationParameters currentCalculationParameters;
     Console console;
 
     static {
@@ -35,6 +36,7 @@ public class Main {
         for (TableWindow<?> tableMonitor : tableMonitors.values().toArray(new TableWindow[0])) {
             tableMonitor.dispose();
         }
+        System.exit(0);
     }
 
     public void closeMonitor(String table) {
@@ -68,15 +70,15 @@ public class Main {
      * z32
      */
     public void compute() {
-        currentParameters = new Parameters();
+        currentCalculationParameters = new CalculationParameters();
         computeD1();
         computeD2();
         //z54
-        currentParameters.D_1 = round_GOST(currentParameters.D_1_r);
+        currentCalculationParameters.D_1 = round_GOST(currentCalculationParameters.D_1_r);
         //z55
-        currentParameters.D_2 = round_GOST(currentParameters.D_2_r);
+        currentCalculationParameters.D_2 = round_GOST(currentCalculationParameters.D_2_r);
         //z42
-        currentParameters.vr = Math.PI * currentParameters.D_1 * currentParameters.n_1 / 60000;
+        currentCalculationParameters.vr = Math.PI * currentCalculationParameters.D_1 * currentCalculationParameters.n_1 / 60000;
         //z43
         spaceBetween();
         //z44
@@ -89,39 +91,42 @@ public class Main {
             i = console.nextInt();
             switch (i) {
                 case 1 -> {
-                    currentParameters.m_l = "По межосевому расстоянию";
-                    currentParameters.L = 2 * currentParameters.a + Math.PI * (currentParameters.D_1 + currentParameters.D_2)
-                            / 2 + Math.pow(currentParameters.D_2 - currentParameters.D_1, 2) / (4 * currentParameters.a);
+                    currentCalculationParameters.m_l = "По межосевому расстоянию";
+                    currentCalculationParameters.L = 2 * currentCalculationParameters.a + Math.PI * (currentCalculationParameters.D_1 + currentCalculationParameters.D_2)
+                            / 2 + Math.pow(currentCalculationParameters.D_2 - currentCalculationParameters.D_1, 2) / (4 * currentCalculationParameters.a);
                     break l;
                 }
                 case 2 -> {
-                    currentParameters.m_l = "Из условий сравнительной долговечности";
-                    currentParameters.i_max = currentParameters.speed.equals("Быстроходная") ? 50 : 5;
-                    System.out.println("Введите частоту пробега ремня в секунду. Максимальное значение " + currentParameters.i_max);
-                    currentParameters.i = console.nextDouble();
-                    currentParameters.L_min = currentParameters.vr / currentParameters.i;
-                    currentParameters.Lr = 2 * currentParameters.a + Math.PI * (currentParameters.D_1 + currentParameters.D_2)
-                            / 2 + Math.pow(currentParameters.D_2 - currentParameters.D_1, 2) / (4 * currentParameters.a);
-                    currentParameters.L_diff = currentParameters.L_min - currentParameters.Lr;
-                    if (currentParameters.L_diff <= 0) currentParameters.L = currentParameters.Lr;
+                    currentCalculationParameters.m_l = "Из условий сравнительной долговечности";
+                    currentCalculationParameters.i_max = currentCalculationParameters.speed.equals("Быстроходная") ? 50 : 5;
+                    System.out.println("Введите частоту пробега ремня в секунду. Максимальное значение " + currentCalculationParameters.i_max);
+                    currentCalculationParameters.i = console.nextDouble();
+                    currentCalculationParameters.L_min = currentCalculationParameters.vr / currentCalculationParameters.i;
+                    currentCalculationParameters.Lr = 2 * currentCalculationParameters.a + Math.PI * (currentCalculationParameters.D_1 + currentCalculationParameters.D_2)
+                            / 2 + Math.pow(currentCalculationParameters.D_2 - currentCalculationParameters.D_1, 2) / (4 * currentCalculationParameters.a);
+                    currentCalculationParameters.L_diff = currentCalculationParameters.L_min - currentCalculationParameters.Lr;
+                    if (currentCalculationParameters.L_diff <= 0) currentCalculationParameters.L = currentCalculationParameters.Lr;
                     else {
                         //z84
-                        System.out.println("Введите длину ремня. Минимальное значение " + currentParameters.L_min);
-                        currentParameters.L = console.nextDouble();
+                        System.out.println("Введите длину ремня. Минимальное значение " + currentCalculationParameters.L_min);
+                        currentCalculationParameters.L = console.nextDouble();
                     }
                     //z6.11
-                    currentParameters.D_cp = (currentParameters.D_1 + currentParameters.D_2) / 2;
-                    currentParameters.lambda = currentParameters.L - Math.PI * currentParameters.D_cp;
-                    currentParameters.delta = (currentParameters.D_1 - currentParameters.D_2) / 2;
-                    currentParameters.a = (currentParameters.lambda + Math.pow(Math.pow(currentParameters.lambda, 2)
-                            - 8 * Math.pow(currentParameters.delta, 2), 1. / 2)) / 4;
+                    currentCalculationParameters.D_cp = (currentCalculationParameters.D_1 + currentCalculationParameters.D_2) / 2;
+                    currentCalculationParameters.lambda = currentCalculationParameters.L - Math.PI * currentCalculationParameters.D_cp;
+                    currentCalculationParameters.delta = (currentCalculationParameters.D_1 - currentCalculationParameters.D_2) / 2;
+                    currentCalculationParameters.a = (currentCalculationParameters.lambda + Math.pow(Math.pow(currentCalculationParameters.lambda, 2)
+                            - 8 * Math.pow(currentCalculationParameters.delta, 2), 1. / 2)) / 4;
                     break l;
                 }
             }
         }
         //z45
-        currentParameters.sigma_1 = 180 - ((currentParameters.D_2 - currentParameters.D_1) / currentParameters.a) * 57;
-        System.out.println(currentParameters);
+        currentCalculationParameters.sigma_1 = 180 - ((currentCalculationParameters.D_2 - currentCalculationParameters.D_1) / currentCalculationParameters.a) * 57;
+        System.out.println(currentCalculationParameters);
+        TableWindow<Parameters> results = new TableWindow<>("Результаты расчёта", Parameters.class, () -> List.of(currentCalculationParameters.getParameters()), () -> {
+        });
+        results.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         System.out.println("Хотите сохранить данные расчёта? (д/н)");
         l:while (true) {
             String s = console.nextString();
@@ -135,7 +140,8 @@ public class Main {
                 }
             }
         }
-        currentParameters = null;
+        results.dispose();
+        currentCalculationParameters = null;
     }
 
     private void saveParams() {
@@ -158,19 +164,19 @@ public class Main {
             i = console.nextInt();
             switch (i) {
                 case 1 -> {
-                    currentParameters.speed = "Быстроходная";
+                    currentCalculationParameters.speed = "Быстроходная";
                     break l;
                 }
                 case 2 -> {
-                    currentParameters.speed = "Среднескоростная";
+                    currentCalculationParameters.speed = "Среднескоростная";
                     break l;
                 }
             }
         }
-        currentParameters.a_min = (i == 1 ? 1.5 : 2) * (currentParameters.D_1 + currentParameters.D_2);
+        currentCalculationParameters.a_min = (i == 1 ? 1.5 : 2) * (currentCalculationParameters.D_1 + currentCalculationParameters.D_2);
         //z75
-        System.out.println("Введите межосевое расстояние. Минимальное значение " + currentParameters.a_min);
-        currentParameters.a = console.nextDouble();
+        System.out.println("Введите межосевое расстояние. Минимальное значение " + currentCalculationParameters.a_min);
+        currentCalculationParameters.a = console.nextDouble();
     }
 
     /**
@@ -178,7 +184,7 @@ public class Main {
      */
     private void computeD1() {
         System.out.println("Введите частоту вращения меньшего шкива, мин^-1");
-        currentParameters.n_1 = console.nextDouble();
+        currentCalculationParameters.n_1 = console.nextDouble();
         System.out.println("Выберите один из методов расчёта диаметра меньшего шкива:");
         System.out.println("1. По формуле М.А. Саверина");
         System.out.println("2. Исходя из ориентировочной скорости");
@@ -188,27 +194,27 @@ public class Main {
             int i = console.nextInt();
             switch (i) {
                 case 1 -> {
-                    currentParameters.m_s = "По формуле М.А. Саверина";
+                    currentCalculationParameters.m_s = "По формуле М.А. Саверина";
                     formulaD_1();
                     break l;
                 }
                 case 2 -> {
-                    currentParameters.m_s = "Исходя из ориентировочной скорости";
+                    currentCalculationParameters.m_s = "Исходя из ориентировочной скорости";
                     // TODO: 12/5/24
-                    currentParameters.v = 5;// FIXME: 12/6/24 from table 1.1
-                    currentParameters.D_1_r = currentParameters.v * 60000 / (Math.PI * currentParameters.n_1);
+                    currentCalculationParameters.v = 5;// FIXME: 12/6/24 from table 1.1
+                    currentCalculationParameters.D_1_r = currentCalculationParameters.v * 60000 / (Math.PI * currentCalculationParameters.n_1);
                     break l;
                 }
                 case 3 -> {
-                    currentParameters.m_s = "На основании конструктивных соображений";
+                    currentCalculationParameters.m_s = "На основании конструктивных соображений";
                     System.out.println("Введите диаметр меньшего шкива");
-                    currentParameters.D_1_r = console.nextDouble();
+                    currentCalculationParameters.D_1_r = console.nextDouble();
                     break l;
                 }
                 case 4 -> {
-                    currentParameters.m_s = "При ограниченном сортаменте";
+                    currentCalculationParameters.m_s = "При ограниченном сортаменте";
                     // TODO: 12/5/24
-                    currentParameters.D_1_r = 500;// FIXME: 12/6/24 from table 1.2
+                    currentCalculationParameters.D_1_r = 500;// FIXME: 12/6/24 from table 1.2
                     break l;
                 }
             }
@@ -229,18 +235,18 @@ public class Main {
             i = console.nextInt();
             switch (i) {
                 case 1 -> {
-                    currentParameters.type = "Повышающая";
+                    currentCalculationParameters.type = "Повышающая";
                     break l;
                 }
                 case 2 -> {
-                    currentParameters.type = "Понижающая";
+                    currentCalculationParameters.type = "Понижающая";
                     break l;
                 }
             }
         }
         System.out.println("Введите коэффициент скольжения ремня");
-        currentParameters.xi = console.nextDouble();
-        currentParameters.D_2_r = currentParameters.D_1_r * (i == 1 ? currentParameters.u / (1 - currentParameters.xi) : currentParameters.u * (1 - currentParameters.xi));
+        currentCalculationParameters.xi = console.nextDouble();
+        currentCalculationParameters.D_2_r = currentCalculationParameters.D_1_r * (i == 1 ? currentCalculationParameters.u / (1 - currentCalculationParameters.xi) : currentCalculationParameters.u * (1 - currentCalculationParameters.xi));
     }
 
     private double round_GOST(double d) {
@@ -262,8 +268,8 @@ public class Main {
     private void z52() {
         System.out.println("Введите частоту вращения большего шкива, мин^-1");
         double n_2 = console.nextDouble();
-        currentParameters.n_2 = n_2;
-        currentParameters.u = currentParameters.n_1 / n_2;
+        currentCalculationParameters.n_2 = n_2;
+        currentCalculationParameters.u = currentCalculationParameters.n_1 / n_2;
     }
 
     /**
@@ -272,7 +278,7 @@ public class Main {
     private void formulaD_1() {
         System.out.println("Введите мощность, кВт");
         double N = console.nextDouble();
-        currentParameters.N = N;
-        currentParameters.D_1_r = 120 * Math.pow(N * 1000 / currentParameters.n_1, 1./3);
+        currentCalculationParameters.N = N;
+        currentCalculationParameters.D_1_r = 120 * Math.pow(N * 1000 / currentCalculationParameters.n_1, 1./3);
     }
 }
