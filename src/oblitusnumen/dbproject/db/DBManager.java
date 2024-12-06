@@ -63,7 +63,7 @@ public class DBManager {
             }
             try (Connection connection = getConnection()) {
                 try (PreparedStatement statement = connection.prepareStatement(
-                        "create table if not exists \"" + table + "\" (" +
+                        "create table if not exists \"" + table + "\" (id INTEGER PRIMARY KEY AUTOINCREMENT," +
                                 fieldsInfo +
                                 ");"
                 )) {// FIXME: 11/24/24
@@ -74,7 +74,7 @@ public class DBManager {
                 try (InputStream inputStream = getClass().getResourceAsStream("/" + table + ".csv")) {
                     rows = new String(inputStream.readAllBytes()).split("\n");
                 }
-                StringBuilder valueFormat = new StringBuilder();
+                StringBuilder valueFormat = new StringBuilder("?,");
                 for (int i = 0; i < typedFields.length; i++) {
                     valueFormat.append("?");
                     if (i < typedFields.length - 1) valueFormat.append(", ");
@@ -84,8 +84,9 @@ public class DBManager {
                     if (row.isEmpty()) continue;
                     try (PreparedStatement statement = connection.prepareStatement("insert into \"" + table + "\" values (" + valueFormat + ")")) {// FIXME: 11/24/24
                         String[] values = row.split("\t");
+                        statement.setString(1, String.valueOf(rowsNumber + 1));
                         for (int i = 0; i < values.length; i++) {
-                            statement.setString(i + 1, values[i]);
+                            statement.setString(i + 2, values[i]);
                         }
                         statement.execute();
                     }
