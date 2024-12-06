@@ -1,1 +1,2 @@
-gost-diameter	oblitusnumen.dbproject.db.models.Gost
+gost-diameter	oblitusnumen.dbproject.db.models.staticmodels.Gost
+speed	oblitusnumen.dbproject.db.models.staticmodels.BeltSpeed
