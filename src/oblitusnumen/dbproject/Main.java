@@ -1,17 +1,18 @@
 package oblitusnumen.dbproject;
 
 import oblitusnumen.dbproject.db.DBManager;
+import oblitusnumen.dbproject.db.models.Gost;
 import oblitusnumen.dbproject.db.models.Parameters;
 import oblitusnumen.dbproject.ui.TableWindow;
 
 import javax.swing.*;
-import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class Main {
     DBManager dbManager = new DBManager();
-    List<TableWindow> tableMonitors = new ArrayList<>();
+    List<TableWindow<?>> tableMonitors = new ArrayList<>();
     Parameters currentParameters;
     Console console;
 
@@ -23,11 +24,11 @@ public class Main {
         }
     }
 
-    public Main() throws SQLException {
+    public Main() throws Exception {
         console = new Console(this);
     }
 
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws Exception {
         new Main().start();
     }
 
@@ -36,6 +37,23 @@ public class Main {
     }
 
     public void showTable() {
+        System.out.println("Выберите таблицу для просмотра:");
+        String[] tables = dbManager.tables().toArray(new String[0]);
+        for (int i = 0; i < tables.length; i++) {
+            String table = tables[i];
+            System.out.println((i + 1) + ". " + table);
+        }
+        int i;
+        while (true) {
+            i = console.nextInt();
+            if (i <= tables.length && i >= 1) {
+                TableWindow tableWindow = new TableWindow(dbManager, tables[i - 1]);
+                tableWindow.setVisible(true);
+                tableMonitors.add(tableWindow);
+                break;
+            }
+            System.out.println("Таблица не найдена. Попробуйте ещё раз.");
+        }
         // TODO: 12/5/24
     }
 
@@ -47,9 +65,9 @@ public class Main {
         computeD1();
         computeD2();
         //z54
-        currentParameters.D_1 = round_GOST(currentParameters.D_1);
+        currentParameters.D_1 = round_GOST(currentParameters.D_1_r);
         //z55
-        currentParameters.D_2 = round_GOST(currentParameters.D_2);
+        currentParameters.D_2 = round_GOST(currentParameters.D_2_r);
         //z42
         currentParameters.vr = Math.PI * currentParameters.D_1 * currentParameters.n_1 / 60000;
         //z43
@@ -216,7 +234,19 @@ public class Main {
     }
 
     private double round_GOST(double d) {// TODO: 12/5/24 table 13.18
-        return d;
+        List<Gost> diameters = dbManager.getAll("gost-diameter");
+        diameters.sort((d1, d2) -> (int) (d1.d - d2.d));
+        Gost diameter = new Gost();
+        diameter.d = -1000;
+        for (Gost gost : diameters) {
+            if (d > gost.d) diameter = gost;
+            else {
+                if (diameter.d > d) return diameter.d;
+                if (gost.d - d > d - diameter.d) return diameter.d;
+                else return gost.d;
+            }
+        }
+        return diameter.d;
     }
 
     private void z52() {

@@ -26,4 +26,6 @@ public class Parameters {
     public double delta;
     public double sigma_1;
     public double v;
+    public double D_1_r;
+    public double D_2_r;
 }
