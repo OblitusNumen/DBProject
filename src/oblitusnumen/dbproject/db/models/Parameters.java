@@ -1,31 +1,16 @@
 package oblitusnumen.dbproject.db.models;
 
+import oblitusnumen.dbproject.db.ColumnName;
+
 public class Parameters {
-    public String m_s;
+    @ColumnName("Диаметр меньшего шкива")
     public double D_1;
-    public double N;
-    public double n_1;
-    public double n_2;
-    public double u;
-    public double xi;
+    @ColumnName("Диаметр большего шкива")
     public double D_2;
-    public double vr;
-    public String type;
-    public String speed;
-    public double a_min;
+    @ColumnName("Межосевое расстояние")
     public double a;
-    public String m_l;
+    @ColumnName("Длина ремня")
     public double L;
-    public double i_max;
-    public double i;
-    public double L_min;
-    public double Lr;
-    public double L_diff;
-    public double D_cp;
-    public double lambda;
-    public double delta;
+    @ColumnName("Угол обхвата на меньшем шкиве")
     public double sigma_1;
-    public double v;
-    public double D_1_r;
-    public double D_2_r;
 }

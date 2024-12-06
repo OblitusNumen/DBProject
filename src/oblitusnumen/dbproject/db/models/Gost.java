@@ -7,12 +7,4 @@ public class Gost {
     public double d;
     @ColumnName("Предельное отклонение")
     public double delta;
-
-    @Override
-    public String toString() {
-        return "Gost{" +
-                "d=" + d +
-                ", delta=" + delta +
-                '}';
-    }
 }

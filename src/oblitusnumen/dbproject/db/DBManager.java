@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.util.*;
 
@@ -107,27 +108,47 @@ public class DBManager {
 
     public <Model> List<Model> getAll(String table) {
         if (!tableModels.containsKey(table)) throw new IllegalArgumentException("Unknown table");
-        Class<Model> model = (Class<Model>) tableModels.get(table);
-        List<Model> result = new ArrayList<>();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("select * from \"" + table + "\"")) {// FIXME: 11/24/24
-                ResultSet rs = statement.executeQuery();
-                TypedField[] typedFields = modelFields.get(model);
-                Constructor<Model> modelConstrurtor = model.getConstructor();
-                while (rs.next()) {
-                    Model modelInstance = modelConstrurtor.newInstance();
-                    for (TypedField typedField : typedFields) {
-                        typedField.field.set(modelInstance, typedField.type.get(rs, typedField.field.getName()));
-                    }
-                    result.add(modelInstance);
-                }
+                return (List<Model>) executeQuery(statement, tableModels.get(table));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public <Model> Model getById(String table, int id) {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("select * from \"" + table + "\" where id = ?")) {// FIXME: 11/24/24
+                statement.setString(1, String.valueOf(id));
+                return (Model) executeQuery(statement, tableModels.get(table)).stream().findFirst().orElse(null);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private <Model> List<Model> executeQuery(PreparedStatement statement, Class<Model> model) throws SQLException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        List<Model> result = new ArrayList<>();
+        ResultSet rs = statement.executeQuery();
+        TypedField[] typedFields = modelFields.get(model);
+        Constructor<Model> modelConstrurtor = model.getConstructor();
+        while (rs.next()) {
+            Model modelInstance = modelConstrurtor.newInstance();
+            for (TypedField typedField : typedFields) {
+                typedField.field.set(modelInstance, typedField.type.get(rs, typedField.field.getName()));
+            }
+            result.add(modelInstance);
+        }
         return result;
+    }
+
+    public <Model> void insertInto(String table, Model value) {
+        // TODO: 12/6/24
     }
 
     public Class<?> getTableModel(String tableName) {

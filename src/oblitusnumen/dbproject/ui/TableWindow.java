@@ -5,26 +5,25 @@ import oblitusnumen.dbproject.db.ColumnName;
 import oblitusnumen.dbproject.db.DBManager;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
+import javax.swing.table.*;
 import java.awt.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.function.Supplier;
 
 public class TableWindow<Model> extends JFrame {
-    private final Main main;
-    private final DBManager dbManager;
-    private final String tableName;
     private final DefaultTableModel tableModel;
     private final Field[] fields;
+    private final Supplier<Iterable<Model>> updater;
+    private final JTable table;
     private JPanel pane;
+    private final Runnable onDispose;
 
-    public TableWindow(Main main, DBManager dbManager, String tableName) {
-        super("Таблица " + tableName);
-        this.main = main;
-        this.dbManager = dbManager;
-        this.tableName = tableName;
-        fields = dbManager.getTableModel(tableName).getFields();
+    public TableWindow(String title, Class<Model> model, Supplier<Iterable<Model>> updater, Runnable onDispose) {
+        super(title);
+        fields = model.getFields();
+        this.updater = updater;
+        this.onDispose = onDispose;
         String[] columnNames = new String[fields.length];
         for (int i = 0; i < fields.length; i++) {
             Field field = fields[i];
@@ -42,7 +41,7 @@ public class TableWindow<Model> extends JFrame {
                 return false;  // Disable editing for all cells
             }
         };
-        JTable table = new JTable(tableModel);
+        table = new JTable(tableModel);
         table.getTableHeader().setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 14));
 //        table.getTableHeader().setEnabled(true);
         table.getTableHeader().setReorderingAllowed(false);
@@ -63,8 +62,12 @@ public class TableWindow<Model> extends JFrame {
         update();
     }
 
+    public TableWindow(Main main, DBManager dbManager, String tableName) {
+        this("Таблица " + tableName, (Class<Model>) dbManager.getTableModel(tableName), () -> dbManager.getAll(tableName), () -> main.closeMonitor(tableName));
+    }
+
     public void update() {
-        update(dbManager.getAll(tableName));
+        update(updater.get());
     }
 
     public void update(Iterable<Model> rows) {// FIXME: 12/5/24
@@ -87,7 +90,7 @@ public class TableWindow<Model> extends JFrame {
 
     @Override
     public void dispose() {
-        main.closeMonitor(tableName);
+        onDispose.run();
         super.dispose();
     }
 
