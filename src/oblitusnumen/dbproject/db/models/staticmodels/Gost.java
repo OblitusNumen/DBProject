@@ -1,4 +1,4 @@
-package oblitusnumen.dbproject.db.models;
+package oblitusnumen.dbproject.db.models.staticmodels;
 
 import oblitusnumen.dbproject.db.ColumnName;
 
