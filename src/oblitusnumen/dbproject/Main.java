@@ -62,7 +62,6 @@ public class Main {
             }
             System.out.println("Таблица не найдена. Попробуйте ещё раз.");
         }
-        // TODO: 12/5/24
     }
 
     /**
@@ -142,6 +141,9 @@ public class Main {
     private void saveParams() {
         // TODO: 12/5/24
         System.out.println("Данные сохранены");
+        for (TableWindow<?> value : tableMonitors.values()) {
+            value.update();
+        }
     }
 
     /**
@@ -241,7 +243,7 @@ public class Main {
         currentParameters.D_2_r = currentParameters.D_1_r * (i == 1 ? currentParameters.u / (1 - currentParameters.xi) : currentParameters.u * (1 - currentParameters.xi));
     }
 
-    private double round_GOST(double d) {// TODO: 12/5/24 table 13.18
+    private double round_GOST(double d) {
         List<Gost> diameters = dbManager.getAll("gost-diameter");
         diameters.sort((d1, d2) -> (int) (d1.d - d2.d));
         Gost diameter = new Gost();
