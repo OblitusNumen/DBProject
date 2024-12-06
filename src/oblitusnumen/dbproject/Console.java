@@ -28,7 +28,6 @@ public class Console {
             }
             this.scanner = null;
         }
-        System.exit(0);
     }
 
     private void printHelp() {
