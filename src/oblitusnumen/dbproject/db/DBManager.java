@@ -1,6 +1,7 @@
 package oblitusnumen.dbproject.db;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -46,6 +47,10 @@ public class DBManager {
     private void init() throws Exception {
         File file = new File(DB_FILENAME);
         if (!file.createNewFile()) throw new RuntimeException("Couldn't create database file");
+        createTables();
+    }
+
+    private void createTables() throws SQLException, IOException {
         for (String table : tableModels.keySet()) {
             System.out.println("creating table " + table);
             Class<?> model = tableModels.get(table);
