@@ -6,13 +6,11 @@ import oblitusnumen.dbproject.db.models.Parameters;
 import oblitusnumen.dbproject.ui.TableWindow;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class Main {
     DBManager dbManager = new DBManager();
-    List<TableWindow<?>> tableMonitors = new ArrayList<>();
+    Map<String, TableWindow<?>> tableMonitors = new HashMap<>();
     Parameters currentParameters;
     Console console;
 
@@ -34,6 +32,13 @@ public class Main {
 
     private void start() {
         console.start();
+        for (TableWindow<?> tableMonitor : tableMonitors.values().toArray(new TableWindow[0])) {
+            tableMonitor.dispose();
+        }
+    }
+
+    public void closeMonitor(String table) {
+        tableMonitors.remove(table);
     }
 
     public void showTable() {
@@ -47,9 +52,12 @@ public class Main {
         while (true) {
             i = console.nextInt();
             if (i <= tables.length && i >= 1) {
-                TableWindow tableWindow = new TableWindow(dbManager, tables[i - 1]);
-                tableWindow.setVisible(true);
-                tableMonitors.add(tableWindow);
+                String table = tables[i - 1];
+                if (tableMonitors.containsKey(table)) {
+                    tableMonitors.get(table).toTop();
+                } else {
+                    tableMonitors.put(table, new TableWindow(this, dbManager, table));
+                }
                 break;
             }
             System.out.println("Таблица не найдена. Попробуйте ещё раз.");
@@ -186,19 +194,19 @@ public class Main {
                     currentParameters.m_s = "Исходя из ориентировочной скорости";
                     // TODO: 12/5/24
                     currentParameters.v = 5;// FIXME: 12/6/24 from table 1.1
-                    currentParameters.D_1 = currentParameters.v * 60000 / (Math.PI * currentParameters.n_1);
+                    currentParameters.D_1_r = currentParameters.v * 60000 / (Math.PI * currentParameters.n_1);
                     break l;
                 }
                 case 3 -> {
                     currentParameters.m_s = "На основании конструктивных соображений";
                     System.out.println("Введите диаметр меньшего шкива");
-                    currentParameters.D_1 = console.nextDouble();
+                    currentParameters.D_1_r = console.nextDouble();
                     break l;
                 }
                 case 4 -> {
                     currentParameters.m_s = "При ограниченном сортаменте";
                     // TODO: 12/5/24
-                    currentParameters.D_1 = 500;// FIXME: 12/6/24 from table 1.2
+                    currentParameters.D_1_r = 500;// FIXME: 12/6/24 from table 1.2
                     break l;
                 }
             }
@@ -230,7 +238,7 @@ public class Main {
         }
         System.out.println("Введите коэффициент скольжения ремня");
         currentParameters.xi = console.nextDouble();
-        currentParameters.D_2 = currentParameters.D_1 * (i == 1 ? currentParameters.u / (1 - currentParameters.xi) : currentParameters.u * (1 - currentParameters.xi));
+        currentParameters.D_2_r = currentParameters.D_1_r * (i == 1 ? currentParameters.u / (1 - currentParameters.xi) : currentParameters.u * (1 - currentParameters.xi));
     }
 
     private double round_GOST(double d) {// TODO: 12/5/24 table 13.18
@@ -263,6 +271,6 @@ public class Main {
         System.out.println("Введите мощность, кВт");
         double N = console.nextDouble();
         currentParameters.N = N;
-        currentParameters.D_1 = 120 * Math.pow(N * 1000 / currentParameters.n_1, 1./3);
+        currentParameters.D_1_r = 120 * Math.pow(N * 1000 / currentParameters.n_1, 1./3);
     }
 }

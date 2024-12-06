@@ -1,5 +1,6 @@
 package oblitusnumen.dbproject.ui;
 
+import oblitusnumen.dbproject.Main;
 import oblitusnumen.dbproject.db.ColumnName;
 import oblitusnumen.dbproject.db.DBManager;
 
@@ -11,14 +12,16 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 public class TableWindow<Model> extends JFrame {
+    private final Main main;
     private final DBManager dbManager;
     private final String tableName;
     private final DefaultTableModel tableModel;
     private final Field[] fields;
     private JPanel pane;
 
-    public TableWindow(DBManager dbManager, String tableName) {
+    public TableWindow(Main main, DBManager dbManager, String tableName) {
         super("Таблица " + tableName);
+        this.main = main;
         this.dbManager = dbManager;
         this.tableName = tableName;
         fields = dbManager.getTableModel(tableName).getFields();
@@ -56,6 +59,7 @@ public class TableWindow<Model> extends JFrame {
         pane.add(scrollPane, gbc);
         setContentPane(pane);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setVisible(true);
         update();
     }
 
@@ -81,11 +85,23 @@ public class TableWindow<Model> extends JFrame {
         alignCentered();
     }
 
+    @Override
+    public void dispose() {
+        main.closeMonitor(tableName);
+        super.dispose();
+    }
+
     public void alignCentered() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         double width = screenSize.getWidth();
         double height = screenSize.getHeight();
         setBounds((int) (width / 2 - (double) getWidth() / 2), (int) (height / 2 - (double) getHeight() / 2),
                 getWidth(), getHeight());
+    }
+
+    public void toTop() {
+        setState(JFrame.NORMAL);
+        setAlwaysOnTop(true);
+        setAlwaysOnTop(false);
     }
 }
