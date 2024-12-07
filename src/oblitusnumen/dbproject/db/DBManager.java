@@ -93,7 +93,7 @@ public class DBManager {
                     }
                     rowsNumber++;
                 }
-                System.out.println("inserted %d entries".formatted(rowsNumber));
+                System.out.printf("inserted %d entries%n", rowsNumber);
             }
         }
     }

@@ -5,7 +5,10 @@ import oblitusnumen.dbproject.db.ColumnName;
 import oblitusnumen.dbproject.db.DBManager;
 
 import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -15,8 +18,8 @@ public class TableWindow<Model> extends JFrame {
     private final DefaultTableModel tableModel;
     private final Field[] fields;
     private final Supplier<Iterable<Model>> updater;
-    private JPanel pane;
     private final Runnable onDispose;
+    private JPanel pane;
 
     public TableWindow(String title, Class<Model> model, Supplier<Iterable<Model>> updater, Runnable onDispose) {
         super(title);
@@ -42,14 +45,14 @@ public class TableWindow<Model> extends JFrame {
         };
         JTable table = new JTable(tableModel);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-            adjustColumnWidths(table);
+        adjustColumnWidths(table);
         table.getTableHeader().setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 14));
 //        table.getTableHeader().setEnabled(true);
         table.getTableHeader().setReorderingAllowed(false);
         // Set table
         JScrollPane scrollPane = new JScrollPane(table);
-            scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         setSize(new Dimension(800, 450));
         pane.add(scrollPane, BorderLayout.CENTER);
         setContentPane(pane);
@@ -60,6 +63,20 @@ public class TableWindow<Model> extends JFrame {
 
     public TableWindow(Main main, DBManager dbManager, String tableName) {
         this("Таблица " + tableName, (Class<Model>) dbManager.getTableModel(tableName), () -> dbManager.getAll(tableName), () -> main.closeMonitor(tableName));
+    }
+
+    // Adjust column widths to fit the header title
+    private static void adjustColumnWidths(JTable table) {
+        TableColumnModel columnModel = table.getColumnModel();
+        JTableHeader header = table.getTableHeader();
+        FontMetrics metrics = header.getFontMetrics(header.getFont());
+
+        for (int i = 0; i < columnModel.getColumnCount(); i++) {
+            TableColumn column = columnModel.getColumn(i);
+            String headerValue = column.getHeaderValue().toString();
+            int width = metrics.stringWidth(headerValue) + 10; // Add padding
+            column.setPreferredWidth(width);
+        }
     }
 
     public void update() {
@@ -101,19 +118,5 @@ public class TableWindow<Model> extends JFrame {
         setState(JFrame.NORMAL);
         setAlwaysOnTop(true);
         setAlwaysOnTop(false);
-    }
-
-    // Adjust column widths to fit the header title
-    private static void adjustColumnWidths(JTable table) {
-        TableColumnModel columnModel = table.getColumnModel();
-        JTableHeader header = table.getTableHeader();
-        FontMetrics metrics = header.getFontMetrics(header.getFont());
-
-        for (int i = 0; i < columnModel.getColumnCount(); i++) {
-            TableColumn column = columnModel.getColumn(i);
-            String headerValue = column.getHeaderValue().toString();
-            int width = metrics.stringWidth(headerValue) + 10; // Add padding
-            column.setPreferredWidth(width);
-        }
     }
 }

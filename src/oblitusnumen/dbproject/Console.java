@@ -3,8 +3,8 @@ package oblitusnumen.dbproject;
 import java.util.Scanner;
 
 public class Console {
-    private Scanner scanner;
     private final Main main;
+    private Scanner scanner;
 
     public Console(Main main) {
         this.main = main;
@@ -14,7 +14,8 @@ public class Console {
         printHelp();
         try (Scanner scanner = new Scanner(System.in)) {
             this.scanner = scanner;
-            l:while (scanner.hasNext()) {
+            l:
+            while (scanner.hasNext()) {
                 String next = scanner.next();
                 switch (next) {
                     case "help" -> printHelp();
@@ -23,7 +24,8 @@ public class Console {
                         break l;
                     }
                     case "start" -> main.compute();
-                    default -> System.out.println("Неизвестная команда. напишите help, чтобы посмотреть доступные команды");
+                    default ->
+                            System.out.println("Неизвестная команда. напишите help, чтобы посмотреть доступные команды");
                 }
             }
             this.scanner = null;
