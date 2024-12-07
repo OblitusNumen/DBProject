@@ -83,7 +83,7 @@ public class TableWindow<Model> extends JFrame {
         update(updater.get());
     }
 
-    public void update(Iterable<Model> rows) {// FIXME: 12/5/24
+    public void update(Iterable<Model> rows) {
         while (tableModel.getRowCount() > 0) tableModel.removeRow(0);
         try {
             Object[] row = new Object[fields.length];

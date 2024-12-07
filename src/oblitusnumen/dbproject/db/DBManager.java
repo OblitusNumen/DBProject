@@ -67,10 +67,10 @@ public class DBManager {
                         "create table if not exists \"" + table + "\" (id INTEGER PRIMARY KEY AUTOINCREMENT," +
                                 fieldsInfo +
                                 ");"
-                )) {// FIXME: 11/24/24
+                )) {
                     statement.execute();
                     System.out.println("created table " + table);
-                }// TODO: 11/24/24 tables
+                }
                 String[] rows;
                 try (InputStream inputStream = getClass().getResourceAsStream("/" + table + ".csv")) {
                     rows = new String(inputStream.readAllBytes()).split("\n");
@@ -83,7 +83,7 @@ public class DBManager {
                 int rowsNumber = 0;
                 for (String row : rows) {
                     if (row.isEmpty()) continue;
-                    try (PreparedStatement statement = connection.prepareStatement("insert into \"" + table + "\" values (" + valueFormat + ")")) {// FIXME: 11/24/24
+                    try (PreparedStatement statement = connection.prepareStatement("insert into \"" + table + "\" values (" + valueFormat + ")")) {
                         String[] values = row.split("[\t,]");
                         statement.setString(1, String.valueOf(rowsNumber + 1));
                         for (int i = 0; i < values.length; i++) {
@@ -102,14 +102,10 @@ public class DBManager {
         return DriverManager.getConnection(URL);
     }
 
-    public int getTableWidth(String tableName) {// FIXME 12/5/24 9:36PM
-        throw new RuntimeException();
-    }
-
     public <Model> List<Model> getAll(String table) {
         if (!tableModels.containsKey(table)) throw new IllegalArgumentException("Unknown table");
         try (Connection connection = getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("select * from \"" + table + "\"")) {// FIXME: 11/24/24
+            try (PreparedStatement statement = connection.prepareStatement("select * from \"" + table + "\"")) {
                 return (List<Model>) executeQuery(statement, tableModels.get(table));
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -121,7 +117,7 @@ public class DBManager {
 
     public <Model> Model getById(String table, int id) {
         try (Connection connection = getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("select * from \"" + table + "\" where id = ?")) {// FIXME: 11/24/24
+            try (PreparedStatement statement = connection.prepareStatement("select * from \"" + table + "\" where id = ?")) {
                 statement.setString(1, String.valueOf(id));
                 return (Model) executeQuery(statement, tableModels.get(table)).stream().findFirst().orElse(null);
             } catch (Exception e) {

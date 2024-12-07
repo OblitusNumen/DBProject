@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,7 +58,6 @@ public class Main {
         } else {
             tableMonitors.put(table, new TableWindow<>(this, dbManager, table));
         }
-        System.out.println("Таблица не найдена. Попробуйте ещё раз.");
     }
 
     /**
@@ -155,30 +155,139 @@ public class Main {
         System.out.println("Введите частоту вращения меньшего шкива, мин^-1");
         currentCalculationParameters.n_1 = console.nextDouble();
         String[] options = {"По формуле М.А. Саверина", "Исходя из ориентировочной скорости", "На основании конструктивных соображений", "При ограниченном сортаменте"};
-        switch (console.getChoiceIndex("Выберите один из методов расчёта диаметра меньшего шкива:", options)) {
-            case 0 -> {
-                currentCalculationParameters.m_s = "По формуле М.А. Саверина";
-                formulaD_1();
-            }
+        int choiceIndex = console.getChoiceIndex("Выберите один из методов расчёта диаметра меньшего шкива:", options);
+        currentCalculationParameters.m_s = options[choiceIndex];
+        switch (choiceIndex) {
+            case 0 -> formulaD_1();
             case 1 -> {
-                currentCalculationParameters.m_s = "Исходя из ориентировочной скорости";
                 chooseSpeedFromTable();
                 currentCalculationParameters.v = console.nextDouble();
                 //z72
                 currentCalculationParameters.D_1_r = currentCalculationParameters.v * 60000 / (Math.PI * currentCalculationParameters.n_1);
             }
             case 2 -> {
-                currentCalculationParameters.m_s = "На основании конструктивных соображений";
                 System.out.println("Введите диаметр меньшего шкива");
                 currentCalculationParameters.D_1_r = console.nextDouble();
             }
             case 3 -> {
-                currentCalculationParameters.m_s = "При ограниченном сортаменте";
-                // TODO: 12/5/24
-                currentCalculationParameters.D_1_r = 500;// FIXME: 12/6/24 from table 1.2
+                chooseDiameterByBelt();
+                currentCalculationParameters.D_1_r = console.nextDouble();
             }
         }
         z52();
+    }
+
+    /**
+     * z64
+     */
+    private void chooseDiameterByBelt() {
+        try (Connection connection = dbManager.getConnection()) {
+            String bType = getbType(connection);
+            Double thick = getThick(connection, bType);
+            if (thick != null) currentCalculationParameters.thick = thick;
+            Boolean hasLayer = getHasLayer(connection, thick, bType);
+            if (hasLayer != null) currentCalculationParameters.hasLayer = hasLayer;
+            Integer layerNumber = getLayerNumber(connection, thick, hasLayer, bType);
+            if (layerNumber != null) currentCalculationParameters.layerNumber = layerNumber;
+            try (PreparedStatement statement = connection.prepareStatement("select distinct \"minD\", \"recD\"" +
+                    " from \"diameters-by-belt\"" +
+                    " where \"bType\" = ?" +
+                    " and \"thick\" " + (thick != null ? "= ?" : "is null") +
+                    " and \"hasLayer\" " + (hasLayer != null ? "= ?" : "is null") +
+                    " and \"layerNumber\" " + (layerNumber != null ? "= ?" : "is null"))) {
+                statement.setString(1, bType);
+                int i = 2;
+                if (thick != null) statement.setObject(i++, thick);
+                if (hasLayer != null) statement.setObject(i++, hasLayer);
+                if (layerNumber != null) statement.setObject(i, layerNumber);
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    if (resultSet.next()) {
+                        double minD = resultSet.getDouble(1);
+                        resultSet.getObject(2);
+                        System.out.println("Введите диаметр меньшего шкива. Минимальный допускаемый диаметр: " + minD + "." +
+                                (resultSet.wasNull() ? "" : " Минимальный рекомендуемый диаметр: " + resultSet.getDouble(2) + "."));
+                    } else throw new RuntimeException("Something went wrong. Probably tables are empty.");
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Integer getLayerNumber(Connection connection, Double thick, Boolean hasLayer, String bType) throws SQLException {
+        List<Integer> numberLayers = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement("select distinct \"layerNumber\"" +
+                " from \"diameters-by-belt\"" +
+                " where \"bType\" = ?" +
+                " and \"thick\" " + (thick != null ? "= ?" : "is null") +
+                " and \"hasLayer\" " + (hasLayer != null ? "= ?" : "is null"))) {
+            statement.setString(1, bType);
+            int i = 2;
+            if (thick != null) statement.setObject(i++, thick);
+            if (hasLayer != null) statement.setObject(i, hasLayer);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    resultSet.getObject(1);
+                    numberLayers.add(resultSet.wasNull() ? null : resultSet.getInt(1));
+                }
+            }
+        }
+        Integer layerNumber;
+        if (numberLayers.size() > 1) {
+            layerNumber = console.getChoice("Выберите количество прокладок ремня:", numberLayers.toArray(new Integer[0]));
+        } else layerNumber = numberLayers.size() == 1 ? numberLayers.getFirst() : null;
+        return layerNumber;
+    }
+
+    private Boolean getHasLayer(Connection connection, Double thick, String bType) throws SQLException {
+        List<Boolean> hasLayers = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement("select distinct \"hasLayer\"" +
+                " from \"diameters-by-belt\"" +
+                " where \"bType\" = ? and \"thick\" " + (thick != null ? "= ?" : "is null"))) {
+            statement.setString(1, bType);
+            if (thick != null) statement.setObject(2, thick);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    resultSet.getObject(1);
+                    hasLayers.add(resultSet.wasNull() ? null : resultSet.getInt(1) != 0);
+                }
+            }
+        }
+        Boolean hasLayer;
+        if (hasLayers.size() > 1) {
+            hasLayer = console.getChoiceIndex("Выберите наличие прослоек:", "Есть", "Нет") == 0;
+        } else hasLayer = hasLayers.size() == 1 ? hasLayers.getFirst() : null;
+        return hasLayer;
+    }
+
+    private Double getThick(Connection connection, String bType) throws SQLException {
+        List<Double> thickness = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement("select distinct \"thick\" from \"diameters-by-belt\" where \"bType\" = ?")) {
+            statement.setString(1, bType);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    resultSet.getObject(1);
+                    thickness.add(resultSet.wasNull() ? null : resultSet.getDouble(1));
+                }
+            }
+        }
+        Double thick;
+        if (thickness.size() > 1) {
+            thick = console.getChoice("Выберите толщину ремня:", thickness.toArray(new Double[0]));
+        } else thick = thickness.size() == 1 ? thickness.getFirst() : null;
+        return thick;
+    }
+
+    private String getbType(Connection connection) throws SQLException {
+        List<String> types = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement("select distinct \"bType\" from \"diameters-by-belt\"")) {
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    types.add(resultSet.getString(1));
+                }
+            }
+        }
+        return currentCalculationParameters.bType = console.getChoice("Выберите тип ремня:", types.toArray(new String[0]));
     }
 
     /**
@@ -236,7 +345,7 @@ public class Main {
                     statement.setString(3, String.valueOf(thick));
                     try (ResultSet resultSet = statement.executeQuery()) {
                         if (resultSet.next()) {
-                            System.out.println("Выберите скорость ремня. Рекомендованная наибольшая скорость ремня: "
+                            System.out.println("Введите скорость ремня. Рекомендованная наибольшая скорость ремня: "
                                     + resultSet.getDouble(1));
                             break;
                         }
