@@ -1,5 +1,7 @@
 package oblitusnumen.dbproject.db.models;
 
+import oblitusnumen.dbproject.db.DBManager;
+
 public class CalculationParameters {
     public String m_s;
     public double D_1;
@@ -37,5 +39,14 @@ public class CalculationParameters {
         parameters.L = L;
         parameters.sigma_1 = sigma_1;
         return parameters;
+    }
+
+    public void saveAll(DBManager dbManager) {
+        Wheel lWheel = new Wheel();
+        lWheel.n = n_1;
+        lWheel.d = D_1;
+        Wheel bWheel = new Wheel();
+        bWheel.n = n_2;
+        bWheel.d = D_2;
     }
 }
