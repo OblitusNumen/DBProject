@@ -23,7 +23,7 @@ public class DBManager {
         }
         for (String s : split) {
             if (s.isEmpty()) continue;
-            String[] table = s.split("\t");
+            String[] table = s.split("[\t,]");
             tableModels.put(table[0], Class.forName(table[1]));
         }
         Map<String, Type> typeAdaptation = new HashMap<>();
@@ -84,7 +84,7 @@ public class DBManager {
                 for (String row : rows) {
                     if (row.isEmpty()) continue;
                     try (PreparedStatement statement = connection.prepareStatement("insert into \"" + table + "\" values (" + valueFormat + ")")) {// FIXME: 11/24/24
-                        String[] values = row.split("\t");
+                        String[] values = row.split("[\t,]");
                         statement.setString(1, String.valueOf(rowsNumber + 1));
                         for (int i = 0; i < values.length; i++) {
                             statement.setString(i + 2, values[i]);
