@@ -1,20 +1,17 @@
 package oblitusnumen.dbproject;
 
 import oblitusnumen.dbproject.db.DBManager;
-import oblitusnumen.dbproject.db.models.staticmodels.Gost;
 import oblitusnumen.dbproject.db.models.CalculationParameters;
 import oblitusnumen.dbproject.db.models.Parameters;
+import oblitusnumen.dbproject.db.models.staticmodels.Gost;
 import oblitusnumen.dbproject.ui.TableWindow;
 
 import javax.swing.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Main {
-    DBManager dbManager = new DBManager();
-    Map<String, TableWindow<?>> tableMonitors = new HashMap<>();
-    CalculationParameters currentCalculationParameters;
-    Console console;
-
     static {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -22,6 +19,11 @@ public class Main {
             throw new RuntimeException(e);
         }
     }
+
+    DBManager dbManager = new DBManager();
+    Map<String, TableWindow<?>> tableMonitors = new HashMap<>();
+    CalculationParameters currentCalculationParameters;
+    Console console;
 
     public Main() throws Exception {
         console = new Console(this);
@@ -105,7 +107,8 @@ public class Main {
                     currentCalculationParameters.Lr = 2 * currentCalculationParameters.a + Math.PI * (currentCalculationParameters.D_1 + currentCalculationParameters.D_2)
                             / 2 + Math.pow(currentCalculationParameters.D_2 - currentCalculationParameters.D_1, 2) / (4 * currentCalculationParameters.a);
                     currentCalculationParameters.L_diff = currentCalculationParameters.L_min - currentCalculationParameters.Lr;
-                    if (currentCalculationParameters.L_diff <= 0) currentCalculationParameters.L = currentCalculationParameters.Lr;
+                    if (currentCalculationParameters.L_diff <= 0)
+                        currentCalculationParameters.L = currentCalculationParameters.Lr;
                     else {
                         //z84
                         System.out.println("Введите длину ремня. Минимальное значение " + currentCalculationParameters.L_min);
@@ -128,7 +131,8 @@ public class Main {
         });
         results.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         System.out.println("Хотите сохранить данные расчёта? (д/н)");
-        l:while (true) {
+        l:
+        while (true) {
             String s = console.nextString();
             switch (s) {
                 case "д" -> {
@@ -157,7 +161,8 @@ public class Main {
         System.out.println("1. Быстроходная");
         System.out.println("2. Среднескоростная");
         int i;
-        l:while (true) {
+        l:
+        while (true) {
             i = console.nextInt();
             switch (i) {
                 case 1 -> {
@@ -187,7 +192,8 @@ public class Main {
         System.out.println("2. Исходя из ориентировочной скорости");
         System.out.println("3. На основании конструктивных соображений");
         System.out.println("4. При ограниченном сортаменте");
-        l:while (true) {
+        l:
+        while (true) {
             int i = console.nextInt();
             switch (i) {
                 case 1 -> {
@@ -276,6 +282,6 @@ public class Main {
         System.out.println("Введите мощность, кВт");
         double N = console.nextDouble();
         currentCalculationParameters.N = N;
-        currentCalculationParameters.D_1_r = 120 * Math.pow(N * 1000 / currentCalculationParameters.n_1, 1./3);
+        currentCalculationParameters.D_1_r = 120 * Math.pow(N * 1000 / currentCalculationParameters.n_1, 1. / 3);
     }
 }
