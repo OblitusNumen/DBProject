@@ -7,6 +7,10 @@ import oblitusnumen.dbproject.db.models.staticmodels.Gost;
 import oblitusnumen.dbproject.ui.TableWindow;
 
 import javax.swing.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,25 +51,13 @@ public class Main {
 
     public void showTable() {
         System.out.println("Выберите таблицу для просмотра:");
-        String[] tables = dbManager.tables().toArray(new String[0]);
-        for (int i = 0; i < tables.length; i++) {
-            String table = tables[i];
-            System.out.println((i + 1) + ". " + table);
+        String table = console.getChoice("Выберите таблицу для просмотра:", dbManager.tables().toArray(new String[0]));
+        if (tableMonitors.containsKey(table)) {
+            tableMonitors.get(table).toTop();
+        } else {
+            tableMonitors.put(table, new TableWindow<>(this, dbManager, table));
         }
-        int i;
-        while (true) {
-            i = console.nextInt();
-            if (i <= tables.length && i >= 1) {
-                String table = tables[i - 1];
-                if (tableMonitors.containsKey(table)) {
-                    tableMonitors.get(table).toTop();
-                } else {
-                    tableMonitors.put(table, new TableWindow(this, dbManager, table));
-                }
-                break;
-            }
-            System.out.println("Таблица не найдена. Попробуйте ещё раз.");
-        }
+        System.out.println("Таблица не найдена. Попробуйте ещё раз.");
     }
 
     /**
@@ -84,22 +76,14 @@ public class Main {
         //z43
         spaceBetween();
         //z44
-        System.out.println("Выберите метод определения длины ремня:");
-        System.out.println("1. По межосевому расстоянию");
-        System.out.println("2. Из условий сравнительной долговечности");
-        int i;
-        l:
-        while (true) {
-            i = console.nextInt();
-            switch (i) {
+        String[] options = {"По межосевому расстоянию", "Из условий сравнительной долговечности"};
+        int choiceIndex = console.getChoiceIndex("Выберите метод определения длины ремня:", options);
+        currentCalculationParameters.m_l = options[choiceIndex];
+            switch (choiceIndex) {
+                case 0 -> currentCalculationParameters.L = 2 * currentCalculationParameters.a + Math.PI
+                        * (currentCalculationParameters.D_1 + currentCalculationParameters.D_2) / 2
+                        + Math.pow(currentCalculationParameters.D_2 - currentCalculationParameters.D_1, 2) / (4 * currentCalculationParameters.a);
                 case 1 -> {
-                    currentCalculationParameters.m_l = "По межосевому расстоянию";
-                    currentCalculationParameters.L = 2 * currentCalculationParameters.a + Math.PI * (currentCalculationParameters.D_1 + currentCalculationParameters.D_2)
-                            / 2 + Math.pow(currentCalculationParameters.D_2 - currentCalculationParameters.D_1, 2) / (4 * currentCalculationParameters.a);
-                    break l;
-                }
-                case 2 -> {
-                    currentCalculationParameters.m_l = "Из условий сравнительной долговечности";
                     currentCalculationParameters.i_max = currentCalculationParameters.speed.equals("Быстроходная") ? 50 : 5;
                     System.out.println("Введите частоту пробега ремня в секунду. Максимальное значение " + currentCalculationParameters.i_max);
                     currentCalculationParameters.i = console.nextDouble();
@@ -120,26 +104,24 @@ public class Main {
                     currentCalculationParameters.delta = (currentCalculationParameters.D_1 - currentCalculationParameters.D_2) / 2;
                     currentCalculationParameters.a = (currentCalculationParameters.lambda + Math.pow(Math.pow(currentCalculationParameters.lambda, 2)
                             - 8 * Math.pow(currentCalculationParameters.delta, 2), 1. / 2)) / 4;
-                    break l;
                 }
             }
-        }
         //z45
         currentCalculationParameters.sigma_1 = 180 - ((currentCalculationParameters.D_2 - currentCalculationParameters.D_1) / currentCalculationParameters.a) * 57;
         System.out.println(currentCalculationParameters);
         TableWindow<Parameters> results = new TableWindow<>("Результаты расчёта", Parameters.class, () -> List.of(currentCalculationParameters.getParameters()), () -> {
         });
         results.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        System.out.println("Хотите сохранить данные расчёта? (д/н)");
+        System.out.println("Хотите сохранить данные расчёта? (y/n)");
         l:
         while (true) {
             String s = console.nextString();
             switch (s) {
-                case "д" -> {
+                case "y" -> {
                     saveParams();
                     break l;
                 }
-                case "н" -> {
+                case "n" -> {
                     break l;
                 }
             }
@@ -157,25 +139,10 @@ public class Main {
      * z43
      */
     private void spaceBetween() {
-        System.out.println("Выберите быстроходность передачи:");
-        System.out.println("1. Быстроходная");
-        System.out.println("2. Среднескоростная");
-        int i;
-        l:
-        while (true) {
-            i = console.nextInt();
-            switch (i) {
-                case 1 -> {
-                    currentCalculationParameters.speed = "Быстроходная";
-                    break l;
-                }
-                case 2 -> {
-                    currentCalculationParameters.speed = "Среднескоростная";
-                    break l;
-                }
-            }
-        }
-        currentCalculationParameters.a_min = (i == 1 ? 1.5 : 2) * (currentCalculationParameters.D_1 + currentCalculationParameters.D_2);
+        String[] options = {"Быстроходная", "Среднескоростная"};
+        int choiceIndex = console.getChoiceIndex("Выберите быстроходность передачи:", options);
+        currentCalculationParameters.speed = options[choiceIndex];
+        currentCalculationParameters.a_min = (choiceIndex == 0 ? 1.5 : 2) * (currentCalculationParameters.D_1 + currentCalculationParameters.D_2);
         //z75
         System.out.println("Введите межосевое расстояние. Минимальное значение " + currentCalculationParameters.a_min);
         currentCalculationParameters.a = console.nextDouble();
@@ -187,69 +154,113 @@ public class Main {
     private void computeD1() {
         System.out.println("Введите частоту вращения меньшего шкива, мин^-1");
         currentCalculationParameters.n_1 = console.nextDouble();
-        System.out.println("Выберите один из методов расчёта диаметра меньшего шкива:");
-        System.out.println("1. По формуле М.А. Саверина");
-        System.out.println("2. Исходя из ориентировочной скорости");
-        System.out.println("3. На основании конструктивных соображений");
-        System.out.println("4. При ограниченном сортаменте");
-        l:
-        while (true) {
-            int i = console.nextInt();
-            switch (i) {
-                case 1 -> {
-                    currentCalculationParameters.m_s = "По формуле М.А. Саверина";
-                    formulaD_1();
-                    break l;
-                }
-                case 2 -> {
-                    currentCalculationParameters.m_s = "Исходя из ориентировочной скорости";
-                    // TODO: 12/5/24
-                    currentCalculationParameters.v = 5;// FIXME: 12/6/24 from table 1.1
-                    currentCalculationParameters.D_1_r = currentCalculationParameters.v * 60000 / (Math.PI * currentCalculationParameters.n_1);
-                    break l;
-                }
-                case 3 -> {
-                    currentCalculationParameters.m_s = "На основании конструктивных соображений";
-                    System.out.println("Введите диаметр меньшего шкива");
-                    currentCalculationParameters.D_1_r = console.nextDouble();
-                    break l;
-                }
-                case 4 -> {
-                    currentCalculationParameters.m_s = "При ограниченном сортаменте";
-                    // TODO: 12/5/24
-                    currentCalculationParameters.D_1_r = 500;// FIXME: 12/6/24 from table 1.2
-                    break l;
-                }
+        String[] options = {"По формуле М.А. Саверина", "Исходя из ориентировочной скорости", "На основании конструктивных соображений", "При ограниченном сортаменте"};
+        switch (console.getChoiceIndex("Выберите один из методов расчёта диаметра меньшего шкива:", options)) {
+            case 0 -> {
+                currentCalculationParameters.m_s = "По формуле М.А. Саверина";
+                formulaD_1();
+            }
+            case 1 -> {
+                currentCalculationParameters.m_s = "Исходя из ориентировочной скорости";
+                chooseSpeedFromTable();
+                currentCalculationParameters.v = console.nextDouble();
+                //z72
+                currentCalculationParameters.D_1_r = currentCalculationParameters.v * 60000 / (Math.PI * currentCalculationParameters.n_1);
+            }
+            case 2 -> {
+                currentCalculationParameters.m_s = "На основании конструктивных соображений";
+                System.out.println("Введите диаметр меньшего шкива");
+                currentCalculationParameters.D_1_r = console.nextDouble();
+            }
+            case 3 -> {
+                currentCalculationParameters.m_s = "При ограниченном сортаменте";
+                // TODO: 12/5/24
+                currentCalculationParameters.D_1_r = 500;// FIXME: 12/6/24 from table 1.2
             }
         }
         z52();
     }
 
     /**
+     * z71
+     */
+    private void chooseSpeedFromTable() {
+        try (Connection connection = dbManager.getConnection()) {
+            List<String> materials = new ArrayList<>();
+            try (PreparedStatement statement = connection.prepareStatement("select distinct \"type\" from \"speed\"")) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        materials.add(resultSet.getString(1));
+                    }
+                }
+            }
+            String choice = currentCalculationParameters.mat = console.getChoice("Выберите материал ремня:", materials.toArray(new String[0]));
+            System.out.println("Выберите ширину ремня в пределах одного из диапазонов:");
+            try (PreparedStatement statement = connection.prepareStatement("select distinct \"minW\", \"maxW\" from \"speed\" where \"type\" = ?")) {
+                statement.setString(1, choice);
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    int i = 1;
+                    while (resultSet.next()) {
+                        System.out.println(i + ". " + resultSet.getDouble(1) + "-" + resultSet.getDouble(2));
+                        i++;
+                    }
+                }
+            }
+            double width;
+            while (true) {
+                width = currentCalculationParameters.width = console.nextDouble();
+                try (PreparedStatement statement = connection.prepareStatement("select distinct \"minT\", \"maxT\"" +
+                        " from \"speed\"" +
+                        " where \"type\" = ? and ? between \"minW\" and \"maxW\"")) {
+                    statement.setString(1, choice);
+                    statement.setString(2, String.valueOf(width));
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                        int i = 1;
+                        while (resultSet.next()) {
+                            if (i == 1) System.out.println("Выберите толщину ремня в пределах одного из диапазонов:");
+                            System.out.println(i + ". " + resultSet.getDouble(1) + "-" + resultSet.getDouble(2));
+                            i++;
+                        }
+                        if (i != 1) break;
+                        System.out.println("Не найден диапазон для значения " + width + ". Попробуйте ещё раз.");
+                    }
+                }
+            }double thick;
+            while (true) {
+                thick = currentCalculationParameters.thick = console.nextDouble();
+                try (PreparedStatement statement = connection.prepareStatement("select distinct \"recSpeed\"" +
+                        " from \"speed\"" +
+                        " where \"type\" = ? and ? between \"minW\" and \"maxW\" and ? between \"minT\" and \"maxT\"")) {
+                    statement.setString(1, choice);
+                    statement.setString(2, String.valueOf(width));
+                    statement.setString(3, String.valueOf(thick));
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                        if (resultSet.next()) {
+                            System.out.println("Выберите скорость ремня. Рекомендованная наибольшая скорость ремня: "
+                                    + resultSet.getDouble(1));
+                            break;
+                        }
+                    }
+                    System.out.println("Не найден диапазон для значения " + thick + ". Попробуйте ещё раз.");
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * z53
      */
     private void computeD2() {
-        System.out.println("Выберите вид передачи:");
-        System.out.println("1. Повышающая");
-        System.out.println("2. Понижающая");
-        int i;
-        l:
-        while (true) {
-            i = console.nextInt();
-            switch (i) {
-                case 1 -> {
-                    currentCalculationParameters.type = "Повышающая";
-                    break l;
-                }
-                case 2 -> {
-                    currentCalculationParameters.type = "Понижающая";
-                    break l;
-                }
-            }
-        }
+        String[] options = {"Повышающая", "Понижающая"};
+        int choiceIndex = console.getChoiceIndex("Выберите вид передачи:", options);
+        currentCalculationParameters.type = options[choiceIndex];
         System.out.println("Введите коэффициент скольжения ремня");
         currentCalculationParameters.xi = console.nextDouble();
-        currentCalculationParameters.D_2_r = currentCalculationParameters.D_1_r * (i == 1 ? currentCalculationParameters.u / (1 - currentCalculationParameters.xi) : currentCalculationParameters.u * (1 - currentCalculationParameters.xi));
+        currentCalculationParameters.D_2_r = currentCalculationParameters.D_1_r * (choiceIndex == 0 ?
+                currentCalculationParameters.u / (1 - currentCalculationParameters.xi)
+                : currentCalculationParameters.u * (1 - currentCalculationParameters.xi));
     }
 
     private double round_GOST(double d) {

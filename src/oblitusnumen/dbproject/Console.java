@@ -23,6 +23,7 @@ public class Console {
                     case "stop" -> {
                         break l;
                     }
+                    case "data" -> main.compute();
                     case "start" -> main.compute();
                     default ->
                             System.out.println("Неизвестная команда. напишите help, чтобы посмотреть доступные команды");
@@ -36,6 +37,7 @@ public class Console {
         System.out.println("help - помощь");
         System.out.println("stop - завершить программу");
         System.out.println("table - показать таблицу");
+        System.out.println("data - показать таблицу c расчётами");
         System.out.println("start - начать расчёт");
     }
 
@@ -43,6 +45,28 @@ public class Console {
         if (!scanner.hasNext()) throw new RuntimeException("Не удалось прочитать строку");
         System.out.println();
         return scanner.next();
+    }
+
+    @SafeVarargs
+    public final <T> T getChoice(String msg, T... options) {
+        return options[getChoiceIndex(msg, options)];
+    }
+
+    @SafeVarargs
+    public final <T> int getChoiceIndex(String msg, T... options) {
+        System.out.println(msg);
+        int i;
+        for (i = 0; i < options.length; i++) {
+            T option = options[i];
+            System.out.println((i + 1) + ". " + option);
+        }
+        while (true) {
+            i = nextInt();
+            if (i <= options.length && i >= 1) {
+                return i - 1;
+            }
+            System.out.println("Выбранный вариант отсутствует. Попробуйте ещё раз.");
+        }
     }
 
     public int nextInt() {// TODO: 12/5/24
