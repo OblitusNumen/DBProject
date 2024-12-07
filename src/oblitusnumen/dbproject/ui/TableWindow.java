@@ -15,7 +15,6 @@ public class TableWindow<Model> extends JFrame {
     private final DefaultTableModel tableModel;
     private final Field[] fields;
     private final Supplier<Iterable<Model>> updater;
-    private final JTable table;
     private JPanel pane;
     private final Runnable onDispose;
 
@@ -41,21 +40,18 @@ public class TableWindow<Model> extends JFrame {
                 return false;  // Disable editing for all cells
             }
         };
-        table = new JTable(tableModel);
+        JTable table = new JTable(tableModel);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+            adjustColumnWidths(table);
         table.getTableHeader().setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 14));
 //        table.getTableHeader().setEnabled(true);
         table.getTableHeader().setReorderingAllowed(false);
         // Set table
-        GridBagConstraints gbc = new GridBagConstraints();
-        // Set properties for GridBagConstraints (row, column, grid width, grid height)
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 1;
-        gbc.gridheight = 1;
-        // Add the component with its constraints
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setMinimumSize(new Dimension(800, 450));
-        pane.add(scrollPane, gbc);
+            scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        setSize(new Dimension(800, 450));
+        pane.add(scrollPane, BorderLayout.CENTER);
         setContentPane(pane);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setVisible(true);
@@ -83,8 +79,7 @@ public class TableWindow<Model> extends JFrame {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
-        repaint();
-        pack();
+//        repaint();
         alignCentered();
     }
 
@@ -106,5 +101,19 @@ public class TableWindow<Model> extends JFrame {
         setState(JFrame.NORMAL);
         setAlwaysOnTop(true);
         setAlwaysOnTop(false);
+    }
+
+    // Adjust column widths to fit the header title
+    private static void adjustColumnWidths(JTable table) {
+        TableColumnModel columnModel = table.getColumnModel();
+        JTableHeader header = table.getTableHeader();
+        FontMetrics metrics = header.getFontMetrics(header.getFont());
+
+        for (int i = 0; i < columnModel.getColumnCount(); i++) {
+            TableColumn column = columnModel.getColumn(i);
+            String headerValue = column.getHeaderValue().toString();
+            int width = metrics.stringWidth(headerValue) + 10; // Add padding
+            column.setPreferredWidth(width);
+        }
     }
 }
