@@ -41,7 +41,7 @@ public class Console {
         System.out.println("start - начать расчёт");
     }
 
-    public String nextString() {// TODO: 12/5/24
+    public String nextString() {
         if (!scanner.hasNext()) throw new RuntimeException("Не удалось прочитать строку");
         System.out.println();
         return scanner.next();
@@ -69,7 +69,7 @@ public class Console {
         }
     }
 
-    public int nextInt() {// TODO: 12/5/24
+    public int nextInt() {
         while (!scanner.hasNextInt()) {
             System.out.println();
             scanner.next();
