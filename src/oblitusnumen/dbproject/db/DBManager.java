@@ -75,7 +75,7 @@ public class DBManager {
                 try (InputStream inputStream = getClass().getResourceAsStream("/" + table + ".csv")) {
                     rows = new String(inputStream.readAllBytes()).split("\n");
                 }
-                StringBuilder valueFormat = new StringBuilder("?,");
+                StringBuilder valueFormat = new StringBuilder("?, ");
                 for (int i = 0; i < typedFields.length; i++) {
                     valueFormat.append("?");
                     if (i < typedFields.length - 1) valueFormat.append(", ");
@@ -87,7 +87,7 @@ public class DBManager {
                         String[] values = row.split("[\t,]");
                         statement.setString(1, String.valueOf(rowsNumber + 1));
                         for (int i = 0; i < values.length; i++) {
-                            statement.setString(i + 2, values[i]);
+                            statement.setString(i + 2, values[i].equals("null") ? null : values[i]);
                         }
                         statement.execute();
                     }
@@ -134,15 +134,16 @@ public class DBManager {
 
     private <Model> List<Model> executeQuery(PreparedStatement statement, Class<Model> model) throws SQLException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         List<Model> result = new ArrayList<>();
-        ResultSet rs = statement.executeQuery();
-        TypedField[] typedFields = modelFields.get(model);
-        Constructor<Model> modelConstrurtor = model.getConstructor();
-        while (rs.next()) {
-            Model modelInstance = modelConstrurtor.newInstance();
-            for (TypedField typedField : typedFields) {
-                typedField.field.set(modelInstance, typedField.type.get(rs, typedField.field.getName()));
+        try (ResultSet rs = statement.executeQuery()) {
+            TypedField[] typedFields = modelFields.get(model);
+            Constructor<Model> modelConstrurtor = model.getConstructor();
+            while (rs.next()) {
+                Model modelInstance = modelConstrurtor.newInstance();
+                for (TypedField typedField : typedFields) {
+                    typedField.field.set(modelInstance, typedField.type.get(rs, typedField.field.getName()));
+                }
+                result.add(modelInstance);
             }
-            result.add(modelInstance);
         }
         return result;
     }
@@ -160,32 +161,50 @@ public class DBManager {
     }
 
     public enum Type {
-        TEXT("class java.lang.String") {
+        STRING("class java.lang.String", "TEXT") {
             @Override
             public Object get(ResultSet rs, String name) throws SQLException {
                 return rs.getString(name);
             }
         },
-        INTEGER("int") {
+        INTEGER("int", "INTEGER") {
             @Override
             public Object get(ResultSet rs, String name) throws SQLException {
-                return rs.getInt(name);
+                super.get(rs, name);
+                return rs.wasNull() ? -1 : rs.getInt(name);
             }
         },
-        DOUBLE("double") {
+        DOUBLE("double", "DOUBLE") {
             @Override
             public Object get(ResultSet rs, String name) throws SQLException {
-                return rs.getDouble(name);
+                super.get(rs, name);
+                return rs.wasNull() ? Double.NaN : rs.getDouble(name);
+            }
+        },
+        BOOLEAN("boolean", "INTEGER") {
+            @Override
+            public Object get(ResultSet rs, String name) throws SQLException {
+                super.get(rs, name);
+                return !rs.wasNull() && rs.getInt(name) != 0;
             }
         };
 
         private final String type;
+        private final String sqlType;
 
-        Type(String type) {
+        Type(String type, String sqlType) {
             this.type = type;
+            this.sqlType = sqlType;
         }
 
-        public abstract Object get(ResultSet rs, String name) throws SQLException;
+        public Object get(ResultSet rs, String name) throws SQLException {
+            return rs.getObject(name);
+        }
+
+        @Override
+        public String toString() {
+            return sqlType;
+        }
     }
 
     public record TypedField(Field field, Type type) {

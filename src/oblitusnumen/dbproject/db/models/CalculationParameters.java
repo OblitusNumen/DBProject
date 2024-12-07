@@ -30,6 +30,9 @@ public class CalculationParameters {
     public double v;
     public double D_1_r;
     public double D_2_r;
+    public String mat;
+    public double width;
+    public double thick;
 
     public Parameters getParameters() {
         Parameters parameters = new Parameters();

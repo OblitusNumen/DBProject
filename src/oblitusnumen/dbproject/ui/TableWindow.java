@@ -86,17 +86,16 @@ public class TableWindow<Model> extends JFrame {
     public void update(Iterable<Model> rows) {// FIXME: 12/5/24
         while (tableModel.getRowCount() > 0) tableModel.removeRow(0);
         try {
-            Object[] objects = new Object[fields.length];
-            for (Model row : rows) {
+            Object[] row = new Object[fields.length];
+            for (Model model : rows) {
                 for (int i = 0; i < fields.length; i++) {
-                    objects[i] = fields[i].get(row);
+                    row[i] = fields[i].get(model);
                 }
-                tableModel.addRow(objects);
+                tableModel.addRow(row);
             }
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
-//        repaint();
         alignCentered();
     }
 
