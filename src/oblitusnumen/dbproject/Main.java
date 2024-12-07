@@ -1,7 +1,7 @@
 package oblitusnumen.dbproject;
 
 import oblitusnumen.dbproject.db.DBManager;
-import oblitusnumen.dbproject.db.models.Gost;
+import oblitusnumen.dbproject.db.models.staticmodels.Gost;
 import oblitusnumen.dbproject.db.models.CalculationParameters;
 import oblitusnumen.dbproject.db.models.Parameters;
 import oblitusnumen.dbproject.ui.TableWindow;
@@ -147,9 +147,6 @@ public class Main {
     private void saveParams() {
         // TODO: 12/5/24
         System.out.println("Данные сохранены");
-        for (TableWindow<?> value : tableMonitors.values()) {
-            value.update();
-        }
     }
 
     /**
