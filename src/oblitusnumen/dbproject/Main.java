@@ -8,7 +8,6 @@ import oblitusnumen.dbproject.db.models.staticmodels.Gost;
 import oblitusnumen.dbproject.ui.TableWindow;
 
 import javax.swing.*;
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
