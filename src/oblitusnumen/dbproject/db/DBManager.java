@@ -145,8 +145,47 @@ public class DBManager {
     }
 
     public <Model> int insertInto(String table, Model value) {
-        // TODO: 12/6/24
-        return 0;// FIXME: 12/8/24
+            Class<Model> model = (Class<Model>) tableModels.get(table);
+            TypedField[] typedFields = modelFields.get(model);
+        Object[] parameters = new Object[typedFields.length];
+                StringBuilder columnFormat = new StringBuilder();
+            for (int i = 0; i < typedFields.length; i++) {
+                TypedField typedField = typedFields[i];
+                parameters[i] = typedField.field.getName();
+                try {
+                    parameters[i] = typedField.field.get(value);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+                columnFormat.append("\"").append(typedField.field.getName()).append("\"");
+                if (i < typedFields.length - 1) columnFormat.append(", ");
+            }
+                StringBuilder valueFormat = new StringBuilder();
+                for (int i = 0; i < typedFields.length; i++) {
+                    valueFormat.append("?");
+                    if (i < typedFields.length - 1) valueFormat.append(", ");
+                }
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("insert into \"" + table + "\" (" + columnFormat + ") values (" + valueFormat + ")")) {
+                // Set parameter values
+                for (int i = 0; i < parameters.length; i++) {
+                    statement.setObject(i + 1, parameters[i]);
+                }
+                // Execute the insert statement
+                int affectedRows = statement.executeUpdate();
+                // Check if the insert was successful
+                if (affectedRows > 0) {
+                    // Retrieve the generated key
+                    try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            return generatedKeys.getInt(1); // Get the first column (ID)
+                        } else throw new RuntimeException("No ID was returned.");
+                    }
+                } else throw new RuntimeException("Insertion failed.");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Class<?> getTableModel(String tableName) {

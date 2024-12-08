@@ -33,4 +33,10 @@ public class Part {
     public Double L_diff = null;
     @ColumnName("Расчётная длина ремня")
     public Double Lr = null;
+    @ColumnName("Частота вращения")
+    public Double n = null;
+    @ColumnName("Диаметр")
+    public Double d = null;
+    @ColumnName("Расчётный диаметр")
+    public Double dr = null;
 }

@@ -2,6 +2,8 @@ package oblitusnumen.dbproject.db.models;
 
 import oblitusnumen.dbproject.db.ColumnName;
 
+import java.lang.reflect.Field;
+
 public class Belt {
     @ColumnName("Наименование детали")
     public String type = "Ремень";
@@ -20,7 +22,7 @@ public class Belt {
     @ColumnName("Тип")
     public String bType = null;
     @ColumnName("Наличие прослоек")
-    public Integer hasLayer = null;
+    public Boolean hasLayer = null;
     @ColumnName("Число прокладок")
     public Integer layerNumber = null;
     @ColumnName("Минимальная длина")
@@ -33,4 +35,36 @@ public class Belt {
     public Double L_diff = null;
     @ColumnName("Расчётная длина ремня")
     public Double Lr = null;
+
+    public static Belt ofPart(Part part) {
+        Belt belt = new Belt();
+        for (Field field : Belt.class.getFields()) {
+            try {
+                field.set(belt, Part.class.getField(field.getName()).get(part));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return belt;
+    }
+
+    public Part toPart() {
+        Part part = new Part();
+        part.type = type;
+        part.v = v;
+        part.mat = mat;
+        part.thick = thick;
+        part.width = width;
+        part.xi = xi;
+        part.L = L;
+        part.bType = bType;
+        part.hasLayer = hasLayer;
+        part.layerNumber = layerNumber;
+        part.L_min = L_min;
+        part.lambda = lambda;
+        part.vr = vr;
+        part.L_diff = L_diff;
+        part.Lr = Lr;
+        return part;
+    }
 }
