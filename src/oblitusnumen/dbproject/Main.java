@@ -418,4 +418,14 @@ public class Main {
         new TableWindow<>("Параметры расчётов", CalculationParameters.class, () -> calculationParameters, () -> {
         });
     }
+
+    public void openResult() {
+        List<Parameters> calculationParameters = new ArrayList<>();
+        for (Object o : dbManager.getAll("assembly-units")) {
+            AssemblyUnit assemblyUnit = (AssemblyUnit) o;
+            calculationParameters.add(assemblyUnit.toCalculationParameters(dbManager).getParameters());
+        }
+        new TableWindow<>("Параметры расчётов", Parameters.class, () -> calculationParameters, () -> {
+        });
+    }
 }
