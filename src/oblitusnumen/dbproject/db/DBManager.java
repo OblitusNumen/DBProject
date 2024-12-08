@@ -102,6 +102,22 @@ public class DBManager {
         return DriverManager.getConnection(URL);
     }
 
+    public List<Integer> getIDs(String table) {
+        List<Integer> ids = new ArrayList<>();
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("select \"id\" from \"" + table + "\"")) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        ids.add(resultSet.getInt(1));
+                    }
+                    return ids;
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public <Model> List<Model> getAll(String table) {
         if (!tableModels.containsKey(table)) throw new IllegalArgumentException("Unknown table");
         try (Connection connection = getConnection()) {

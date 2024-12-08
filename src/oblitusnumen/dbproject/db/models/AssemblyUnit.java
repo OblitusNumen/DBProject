@@ -54,7 +54,7 @@ public class AssemblyUnit {
         parameters.type = type;
         Belt belt = Belt.ofPart(dbManager.getById("parts", beltId));
         Wheel lWheel = Wheel.ofPart(dbManager.getById("parts", lId));
-        Wheel bWheel = Wheel.ofPart(dbManager.getById("parts", beltId));
+        Wheel bWheel = Wheel.ofPart(dbManager.getById("parts", bId));
         parameters.v = belt.v;
         parameters.mat = belt.mat;
         parameters.thick = belt.thick;

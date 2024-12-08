@@ -1,6 +1,7 @@
 package oblitusnumen.dbproject.ui;
 
 import oblitusnumen.dbproject.Main;
+import oblitusnumen.dbproject.Utils;
 import oblitusnumen.dbproject.db.ColumnName;
 import oblitusnumen.dbproject.db.DBManager;
 
@@ -59,7 +60,7 @@ public class TableWindow<Model> extends JFrame {
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setVisible(true);
         update();
-        alignCentered();
+        Utils.alignCentered(this);
     }
 
     public TableWindow(Main main, DBManager dbManager, String tableName) {
@@ -103,14 +104,6 @@ public class TableWindow<Model> extends JFrame {
     public void dispose() {
         onDispose.run();
         super.dispose();
-    }
-
-    public void alignCentered() {
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        double width = screenSize.getWidth();
-        double height = screenSize.getHeight();
-        setBounds((int) (width / 2 - (double) getWidth() / 2), (int) (height / 2 - (double) getHeight() / 2),
-                getWidth(), getHeight());
     }
 
     public void toTop() {
