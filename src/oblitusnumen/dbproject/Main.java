@@ -79,33 +79,33 @@ public class Main {
         String[] options = {"По межосевому расстоянию", "Из условий сравнительной долговечности"};
         int choiceIndex = console.getChoiceIndex("Выберите метод определения длины ремня:", options);
         currentCalculationParameters.m_l = options[choiceIndex];
-            switch (choiceIndex) {
-                case 0 -> currentCalculationParameters.L = 2 * currentCalculationParameters.a + Math.PI
-                        * (currentCalculationParameters.D_1 + currentCalculationParameters.D_2) / 2
-                        + Math.pow(currentCalculationParameters.D_2 - currentCalculationParameters.D_1, 2) / (4 * currentCalculationParameters.a);
-                case 1 -> {
-                    currentCalculationParameters.i_max = (double) (currentCalculationParameters.speed.equals("Быстроходная") ? 50 : 5);
-                    System.out.println("Введите частоту пробега ремня в секунду. Максимальное значение " + currentCalculationParameters.i_max);
-                    currentCalculationParameters.i = console.nextDouble();
-                    currentCalculationParameters.L_min = currentCalculationParameters.vr / currentCalculationParameters.i;
-                    currentCalculationParameters.Lr = 2 * currentCalculationParameters.a + Math.PI * (currentCalculationParameters.D_1 + currentCalculationParameters.D_2)
-                            / 2 + Math.pow(currentCalculationParameters.D_2 - currentCalculationParameters.D_1, 2) / (4 * currentCalculationParameters.a);
-                    currentCalculationParameters.L_diff = currentCalculationParameters.L_min - currentCalculationParameters.Lr;
-                    if (currentCalculationParameters.L_diff <= 0)
-                        currentCalculationParameters.L = currentCalculationParameters.Lr;
-                    else {
-                        //z84
-                        System.out.println("Введите длину ремня. Минимальное значение " + currentCalculationParameters.L_min);
-                        currentCalculationParameters.L = console.nextDouble();
-                    }
-                    //z6.11
-                    currentCalculationParameters.D_cp = (currentCalculationParameters.D_1 + currentCalculationParameters.D_2) / 2;
-                    currentCalculationParameters.lambda = currentCalculationParameters.L - Math.PI * currentCalculationParameters.D_cp;
-                    currentCalculationParameters.delta = (currentCalculationParameters.D_1 - currentCalculationParameters.D_2) / 2;
-                    currentCalculationParameters.a = (currentCalculationParameters.lambda + Math.pow(Math.pow(currentCalculationParameters.lambda, 2)
-                            - 8 * Math.pow(currentCalculationParameters.delta, 2), 1. / 2)) / 4;
+        switch (choiceIndex) {
+            case 0 -> currentCalculationParameters.L = 2 * currentCalculationParameters.a + Math.PI
+                    * (currentCalculationParameters.D_1 + currentCalculationParameters.D_2) / 2
+                    + Math.pow(currentCalculationParameters.D_2 - currentCalculationParameters.D_1, 2) / (4 * currentCalculationParameters.a);
+            case 1 -> {
+                currentCalculationParameters.i_max = (double) (currentCalculationParameters.speed.equals("Быстроходная") ? 50 : 5);
+                System.out.println("Введите частоту пробега ремня в секунду. Максимальное значение " + currentCalculationParameters.i_max);
+                currentCalculationParameters.i = console.nextDouble();
+                currentCalculationParameters.L_min = currentCalculationParameters.vr / currentCalculationParameters.i;
+                currentCalculationParameters.Lr = 2 * currentCalculationParameters.a + Math.PI * (currentCalculationParameters.D_1 + currentCalculationParameters.D_2)
+                        / 2 + Math.pow(currentCalculationParameters.D_2 - currentCalculationParameters.D_1, 2) / (4 * currentCalculationParameters.a);
+                currentCalculationParameters.L_diff = currentCalculationParameters.L_min - currentCalculationParameters.Lr;
+                if (currentCalculationParameters.L_diff <= 0)
+                    currentCalculationParameters.L = currentCalculationParameters.Lr;
+                else {
+                    //z84
+                    System.out.println("Введите длину ремня. Минимальное значение " + currentCalculationParameters.L_min);
+                    currentCalculationParameters.L = console.nextDouble();
                 }
+                //z6.11
+                currentCalculationParameters.D_cp = (currentCalculationParameters.D_1 + currentCalculationParameters.D_2) / 2;
+                currentCalculationParameters.lambda = currentCalculationParameters.L - Math.PI * currentCalculationParameters.D_cp;
+                currentCalculationParameters.delta = (currentCalculationParameters.D_1 - currentCalculationParameters.D_2) / 2;
+                currentCalculationParameters.a = (currentCalculationParameters.lambda + Math.pow(Math.pow(currentCalculationParameters.lambda, 2)
+                        - 8 * Math.pow(currentCalculationParameters.delta, 2), 1. / 2)) / 4;
             }
+        }
         //z45
         currentCalculationParameters.sigma_1 = 180 - ((currentCalculationParameters.D_2 - currentCalculationParameters.D_1) / currentCalculationParameters.a) * 57;
         System.out.println(currentCalculationParameters);
@@ -334,7 +334,8 @@ public class Main {
                         System.out.println("Не найден диапазон для значения " + width + ". Попробуйте ещё раз.");
                     }
                 }
-            }double thick;
+            }
+            double thick;
             while (true) {
                 thick = currentCalculationParameters.thick = console.nextDouble();
                 try (PreparedStatement statement = connection.prepareStatement("select distinct \"recSpeed\"" +
