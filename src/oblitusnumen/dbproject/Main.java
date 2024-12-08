@@ -84,7 +84,7 @@ public class Main {
                         * (currentCalculationParameters.D_1 + currentCalculationParameters.D_2) / 2
                         + Math.pow(currentCalculationParameters.D_2 - currentCalculationParameters.D_1, 2) / (4 * currentCalculationParameters.a);
                 case 1 -> {
-                    currentCalculationParameters.i_max = currentCalculationParameters.speed.equals("Быстроходная") ? 50 : 5;
+                    currentCalculationParameters.i_max = (double) (currentCalculationParameters.speed.equals("Быстроходная") ? 50 : 5);
                     System.out.println("Введите частоту пробега ремня в секунду. Максимальное значение " + currentCalculationParameters.i_max);
                     currentCalculationParameters.i = console.nextDouble();
                     currentCalculationParameters.L_min = currentCalculationParameters.vr / currentCalculationParameters.i;
@@ -376,7 +376,7 @@ public class Main {
         List<Gost> diameters = dbManager.getAll("gost-diameter");
         diameters.sort((d1, d2) -> (int) (d1.d - d2.d));
         Gost diameter = new Gost();
-        diameter.d = -1000;
+        diameter.d = (double) -1000;
         for (Gost gost : diameters) {
             if (d > gost.d) diameter = gost;
             else {

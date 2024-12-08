@@ -4,15 +4,15 @@ import oblitusnumen.dbproject.db.ColumnName;
 
 public class DiametersByBelt {
     @ColumnName("Тип ремня")
-    public String bType;
+    public String bType = null;
     @ColumnName("Толщина, мм")
-    public double thick;
+    public Double thick = null;
     @ColumnName("Минимальный допускаемый диаметр шкива, мм")
-    public double minD;
+    public Double minD = null;
     @ColumnName("Наличие прослоек")
-    public boolean hasLayer;
+    public Boolean hasLayer = null;
     @ColumnName("Минимальный рекомендуемый диаметр шкива, мм")
-    public double recD;
+    public Double recD = null;
     @ColumnName("Число прокладок")
-    public int layerNumber;
+    public Integer layerNumber = null;
 }

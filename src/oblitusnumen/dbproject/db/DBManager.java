@@ -144,8 +144,9 @@ public class DBManager {
         return result;
     }
 
-    public <Model> void insertInto(String table, Model value) {
+    public <Model> int insertInto(String table, Model value) {
         // TODO: 12/6/24
+        return 0;// FIXME: 12/8/24
     }
 
     public Class<?> getTableModel(String tableName) {
@@ -163,25 +164,25 @@ public class DBManager {
                 return rs.getString(name);
             }
         },
-        INTEGER("int", "INTEGER") {
+        INTEGER("class java.lang.Integer", "INTEGER") {
             @Override
             public Object get(ResultSet rs, String name) throws SQLException {
                 super.get(rs, name);
-                return rs.wasNull() ? -1 : rs.getInt(name);
+                return rs.wasNull() ? null : rs.getInt(name);
             }
         },
-        DOUBLE("double", "DOUBLE") {
+        DOUBLE("class java.lang.Double", "DOUBLE") {
             @Override
             public Object get(ResultSet rs, String name) throws SQLException {
                 super.get(rs, name);
-                return rs.wasNull() ? Double.NaN : rs.getDouble(name);
+                return rs.wasNull() ? null : rs.getDouble(name);
             }
         },
-        BOOLEAN("boolean", "INTEGER") {
+        BOOLEAN("class java.lang.Boolean", "INTEGER") {
             @Override
             public Object get(ResultSet rs, String name) throws SQLException {
                 super.get(rs, name);
-                return !rs.wasNull() && rs.getInt(name) != 0;
+                return rs.wasNull() ? null : rs.getInt(name) != 0;
             }
         };
 

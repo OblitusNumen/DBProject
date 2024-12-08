@@ -4,13 +4,13 @@ import oblitusnumen.dbproject.db.ColumnName;
 
 public class Parameters {
     @ColumnName("Диаметр меньшего шкива")
-    public double D_1;
+    public Double D_1 = null;
     @ColumnName("Диаметр большего шкива")
-    public double D_2;
+    public Double D_2 = null;
     @ColumnName("Межосевое расстояние")
-    public double a;
+    public Double a = null;
     @ColumnName("Длина ремня")
-    public double L;
+    public Double L = null;
     @ColumnName("Угол обхвата на меньшем шкиве")
-    public double sigma_1;
+    public Double sigma_1 = null;
 }

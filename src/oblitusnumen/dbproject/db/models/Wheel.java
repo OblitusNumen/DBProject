@@ -6,7 +6,9 @@ public class Wheel {
     @ColumnName("Наименование детали")
     public String type = "Шкив";
     @ColumnName("Частота вращения")
-    public double n;
+    public Double n = null;
     @ColumnName("Диаметр")
-    public double d;
+    public Double d = null;
+    @ColumnName("Расчётный диаметр")
+    public Double dr = null;
 }
