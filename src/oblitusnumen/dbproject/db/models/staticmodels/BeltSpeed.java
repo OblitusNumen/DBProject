@@ -4,15 +4,15 @@ import oblitusnumen.dbproject.db.ColumnName;
 
 public class BeltSpeed {
     @ColumnName("Тип ремня")
-    public String type;
+    public String type = null;
     @ColumnName("Минимальная ширина")
-    public double minW;
+    public Double minW = null;
     @ColumnName("Максимальная ширина")
-    public double maxW;
+    public Double maxW = null;
     @ColumnName("Минимум толщина")
-    public double minT;
+    public Double minT = null;
     @ColumnName("Максимальная толщина")
-    public double maxT;
+    public Double maxT = null;
     @ColumnName("Рекомендованная наибольшая скорость, мс")
-    public double recSpeed;
+    public Double recSpeed = null;
 }

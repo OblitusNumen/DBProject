@@ -4,38 +4,38 @@ import oblitusnumen.dbproject.db.DBManager;
 
 public class CalculationParameters {
     public String m_s = null;
-    public double D_1 = Double.NaN;
-    public double N = Double.NaN;
-    public double n_1 = Double.NaN;
-    public double n_2 = Double.NaN;
-    public double u = Double.NaN;
-    public double xi = Double.NaN;
-    public double D_2 = Double.NaN;
-    public double vr = Double.NaN;
+    public Double D_1 = null;
+    public Double N = null;
+    public Double n_1 = null;
+    public Double n_2 = null;
+    public Double u = null;
+    public Double xi = null;
+    public Double D_2 = null;
+    public Double vr = null;
     public String type = null;
     public String speed = null;
-    public double a_min = Double.NaN;
-    public double a = Double.NaN;
+    public Double a_min = null;
+    public Double a = null;
     public String m_l = null;
-    public double L = Double.NaN;
-    public double i_max = Double.NaN;
-    public double i = Double.NaN;
-    public double L_min = Double.NaN;
-    public double Lr = Double.NaN;
-    public double L_diff = Double.NaN;
-    public double D_cp = Double.NaN;
-    public double lambda = Double.NaN;
-    public double delta = Double.NaN;
-    public double sigma_1 = Double.NaN;
-    public double v = Double.NaN;
-    public double D_1_r = Double.NaN;
-    public double D_2_r = Double.NaN;
+    public Double L = null;
+    public Double i_max = null;
+    public Double i = null;
+    public Double L_min = null;
+    public Double Lr = null;
+    public Double L_diff = null;
+    public Double D_cp = null;
+    public Double lambda = null;
+    public Double delta = null;
+    public Double sigma_1 = null;
+    public Double v = null;
+    public Double D_1_r = null;
+    public Double D_2_r = null;
     public String mat = null;
-    public double width = Double.NaN;
-    public double thick = Double.NaN;
+    public Double width = null;
+    public Double thick = null;
     public String bType = null;
-    public boolean hasLayer;
-    public int layerNumber;
+    public Boolean hasLayer = null;
+    public Integer layerNumber = null;
 
     public Parameters getParameters() {
         Parameters parameters = new Parameters();
@@ -51,8 +51,10 @@ public class CalculationParameters {
         Wheel lWheel = new Wheel();
         lWheel.n = n_1;
         lWheel.d = D_1;
+        lWheel.dr = D_1_r;
         Wheel bWheel = new Wheel();
         bWheel.n = n_2;
         bWheel.d = D_2;
+        bWheel.dr = D_2_r;
     }
 }
