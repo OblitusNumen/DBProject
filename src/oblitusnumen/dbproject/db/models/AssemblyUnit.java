@@ -3,8 +3,6 @@ package oblitusnumen.dbproject.db.models;
 import oblitusnumen.dbproject.db.ColumnName;
 import oblitusnumen.dbproject.db.DBManager;
 
-import java.lang.reflect.Field;
-
 public class AssemblyUnit {
     @ColumnName("Метод определения диаметра меньшего шкива")
     public String m_s = null;

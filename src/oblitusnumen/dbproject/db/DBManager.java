@@ -145,26 +145,26 @@ public class DBManager {
     }
 
     public <Model> int insertInto(String table, Model value) {
-            Class<Model> model = (Class<Model>) tableModels.get(table);
-            TypedField[] typedFields = modelFields.get(model);
+        Class<Model> model = (Class<Model>) tableModels.get(table);
+        TypedField[] typedFields = modelFields.get(model);
         Object[] parameters = new Object[typedFields.length];
-                StringBuilder columnFormat = new StringBuilder();
-            for (int i = 0; i < typedFields.length; i++) {
-                TypedField typedField = typedFields[i];
-                parameters[i] = typedField.field.getName();
-                try {
-                    parameters[i] = typedField.field.get(value);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-                columnFormat.append("\"").append(typedField.field.getName()).append("\"");
-                if (i < typedFields.length - 1) columnFormat.append(", ");
+        StringBuilder columnFormat = new StringBuilder();
+        for (int i = 0; i < typedFields.length; i++) {
+            TypedField typedField = typedFields[i];
+            parameters[i] = typedField.field.getName();
+            try {
+                parameters[i] = typedField.field.get(value);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
             }
-                StringBuilder valueFormat = new StringBuilder();
-                for (int i = 0; i < typedFields.length; i++) {
-                    valueFormat.append("?");
-                    if (i < typedFields.length - 1) valueFormat.append(", ");
-                }
+            columnFormat.append("\"").append(typedField.field.getName()).append("\"");
+            if (i < typedFields.length - 1) columnFormat.append(", ");
+        }
+        StringBuilder valueFormat = new StringBuilder();
+        for (int i = 0; i < typedFields.length; i++) {
+            valueFormat.append("?");
+            if (i < typedFields.length - 1) valueFormat.append(", ");
+        }
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("insert into \"" + table + "\" (" + columnFormat + ") values (" + valueFormat + ")")) {
                 // Set parameter values
