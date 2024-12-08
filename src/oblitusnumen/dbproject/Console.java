@@ -24,6 +24,7 @@ public class Console {
                         break l;
                     }
                     case "data" -> main.openData();
+                    case "result" -> main.openResult();
                     case "start" -> main.compute();
                     default ->
                             System.out.println("Неизвестная команда. напишите help, чтобы посмотреть доступные команды");
@@ -38,6 +39,7 @@ public class Console {
         System.out.println("stop - завершить программу");
         System.out.println("table - показать таблицу");
         System.out.println("data - показать таблицу c расчётами");
+        System.out.println("result - показать таблицу c результатами расчётов");
         System.out.println("start - начать расчёт");
     }
 
