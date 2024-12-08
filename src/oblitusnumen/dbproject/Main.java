@@ -1,9 +1,7 @@
 package oblitusnumen.dbproject;
 
 import oblitusnumen.dbproject.db.DBManager;
-import oblitusnumen.dbproject.db.models.AssemblyUnit;
-import oblitusnumen.dbproject.db.models.CalculationParameters;
-import oblitusnumen.dbproject.db.models.Parameters;
+import oblitusnumen.dbproject.db.models.*;
 import oblitusnumen.dbproject.db.models.staticmodels.Gost;
 import oblitusnumen.dbproject.ui.TableWindow;
 
@@ -44,7 +42,6 @@ public class Main {
         for (TableWindow<?> tableMonitor : tableMonitors.values().toArray(new TableWindow[0])) {
             tableMonitor.dispose();
         }
-        System.exit(0);
     }
 
     public void closeMonitor(String table) {
@@ -108,7 +105,6 @@ public class Main {
         }
         //z45
         currentCalculationParameters.sigma_1 = 180 - ((currentCalculationParameters.D_2 - currentCalculationParameters.D_1) / currentCalculationParameters.a) * 57;
-        System.out.println(currentCalculationParameters);
         TableWindow<Parameters> results = new TableWindow<>("Результаты расчёта", Parameters.class, () -> List.of(currentCalculationParameters.getParameters()), () -> {
         });
         results.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -410,22 +406,32 @@ public class Main {
     }
 
     public void openData() {
-        List<CalculationParameters> calculationParameters = new ArrayList<>();
-        for (Object o : dbManager.getAll("assembly-units")) {
-            AssemblyUnit assemblyUnit = (AssemblyUnit) o;
-            calculationParameters.add(assemblyUnit.toCalculationParameters(dbManager));
-        }
-        new TableWindow<>("Параметры расчётов", CalculationParameters.class, () -> calculationParameters, () -> {
-        });
+        tableMonitors.put("data", new TableWindow<>("Параметры расчётов", CalculationParametersWithId.class, () -> {
+            List<CalculationParametersWithId> parameters = new ArrayList<>();
+            List<Integer> ids = dbManager.getIDs("assembly-units");
+            for (Integer id : ids) {
+                parameters.add(new CalculationParametersWithId(
+                        ((AssemblyUnit) dbManager.getById("assembly-units", id)).toCalculationParameters(dbManager),
+                        id
+                ));
+            }
+            return parameters;
+        }, () -> {
+        }));
     }
 
     public void openResult() {
-        List<Parameters> calculationParameters = new ArrayList<>();
-        for (Object o : dbManager.getAll("assembly-units")) {
-            AssemblyUnit assemblyUnit = (AssemblyUnit) o;
-            calculationParameters.add(assemblyUnit.toCalculationParameters(dbManager).getParameters());
-        }
-        new TableWindow<>("Параметры расчётов", Parameters.class, () -> calculationParameters, () -> {
-        });
+        tableMonitors.put("results", new TableWindow<>("Результаты расчётов", ParametersWithId.class, () -> {
+            List<ParametersWithId> parameters = new ArrayList<>();
+            List<Integer> ids = dbManager.getIDs("assembly-units");
+            for (Integer id : ids) {
+                parameters.add(new ParametersWithId(
+                        ((AssemblyUnit) dbManager.getById("assembly-units", id)).toCalculationParameters(dbManager).getParameters(),
+                        id
+                ));
+            }
+            return parameters;
+        }, () -> {
+        }));
     }
 }

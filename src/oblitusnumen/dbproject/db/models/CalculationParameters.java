@@ -131,9 +131,9 @@ public class CalculationParameters {
         D_1_r = lWheel.dr;
     }
 
-    public void setBWheel(Wheel lWheel) {
-        n_2 = lWheel.n;
-        D_2 = lWheel.d;
-        D_2_r = lWheel.dr;
+    public void setBWheel(Wheel bWheel) {
+        n_2 = bWheel.n;
+        D_2 = bWheel.d;
+        D_2_r = bWheel.dr;
     }
 }
