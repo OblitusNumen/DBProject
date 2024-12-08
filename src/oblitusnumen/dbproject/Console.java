@@ -23,7 +23,7 @@ public class Console {
                     case "stop" -> {
                         break l;
                     }
-                    case "data" -> main.compute();
+                    case "data" -> main.openData();
                     case "start" -> main.compute();
                     default ->
                             System.out.println("Неизвестная команда. напишите help, чтобы посмотреть доступные команды");

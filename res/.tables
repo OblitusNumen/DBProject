@@ -1,3 +1,5 @@
 gost-diameter,oblitusnumen.dbproject.db.models.staticmodels.Gost
 speed,oblitusnumen.dbproject.db.models.staticmodels.BeltSpeed
 diameters-by-belt,oblitusnumen.dbproject.db.models.staticmodels.DiametersByBelt
+parts,oblitusnumen.dbproject.db.models.Part
+assembly-units,oblitusnumen.dbproject.db.models.AssemblyUnit

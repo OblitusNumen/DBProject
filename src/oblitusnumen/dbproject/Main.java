@@ -1,12 +1,14 @@
 package oblitusnumen.dbproject;
 
 import oblitusnumen.dbproject.db.DBManager;
+import oblitusnumen.dbproject.db.models.AssemblyUnit;
 import oblitusnumen.dbproject.db.models.CalculationParameters;
 import oblitusnumen.dbproject.db.models.Parameters;
 import oblitusnumen.dbproject.db.models.staticmodels.Gost;
 import oblitusnumen.dbproject.ui.TableWindow;
 
 import javax.swing.*;
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -51,7 +53,6 @@ public class Main {
     }
 
     public void showTable() {
-        System.out.println("Выберите таблицу для просмотра:");
         String table = console.getChoice("Выберите таблицу для просмотра:", dbManager.tables().toArray(new String[0]));
         if (tableMonitors.containsKey(table)) {
             tableMonitors.get(table).toTop();
@@ -131,8 +132,11 @@ public class Main {
     }
 
     private void saveParams() {
-        // TODO: 12/5/24
+        currentCalculationParameters.saveAll(dbManager);
         System.out.println("Данные сохранены");
+        for (TableWindow<?> value : tableMonitors.values()) {
+            value.update();
+        }
     }
 
     /**
@@ -404,5 +408,15 @@ public class Main {
         double N = console.nextDouble();
         currentCalculationParameters.N = N;
         currentCalculationParameters.D_1_r = 120 * Math.pow(N * 1000 / currentCalculationParameters.n_1, 1. / 3);
+    }
+
+    public void openData() {
+        List<CalculationParameters> calculationParameters = new ArrayList<>();
+        for (Object o : dbManager.getAll("assembly-units")) {
+            AssemblyUnit assemblyUnit = (AssemblyUnit) o;
+            calculationParameters.add(assemblyUnit.toCalculationParameters(dbManager));
+        }
+        new TableWindow<>("Параметры расчётов", CalculationParameters.class, () -> calculationParameters, () -> {
+        });
     }
 }

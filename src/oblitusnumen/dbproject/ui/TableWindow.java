@@ -59,6 +59,7 @@ public class TableWindow<Model> extends JFrame {
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setVisible(true);
         update();
+        alignCentered();
     }
 
     public TableWindow(Main main, DBManager dbManager, String tableName) {
@@ -96,7 +97,6 @@ public class TableWindow<Model> extends JFrame {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
-        alignCentered();
     }
 
     @Override
