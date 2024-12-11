@@ -4,7 +4,9 @@ import oblitusnumen.dbproject.db.ColumnName;
 
 public class Part {
     @ColumnName("Наименование детали")
-    public String type = null;
+    public String ND = null;
+    @ColumnName("Назначение детали")
+    public String NAZD = null;
     @ColumnName("Скорость")
     public Double v = null;
     @ColumnName("Материал")

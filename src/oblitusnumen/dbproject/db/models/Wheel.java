@@ -6,7 +6,9 @@ import java.lang.reflect.Field;
 
 public class Wheel {
     @ColumnName("Наименование детали")
-    public String type = "Шкив";
+    public String ND = "Шкив";
+    @ColumnName("Назначение детали")
+    public String NAZD = null;
     @ColumnName("Частота вращения")
     public Double n = null;
     @ColumnName("Диаметр")
@@ -28,7 +30,8 @@ public class Wheel {
 
     public Part toPart() {
         Part part = new Part();
-        part.type = type;
+        part.ND = ND;
+        part.NAZD = NAZD;
         part.n = n;
         part.d = d;
         part.dr = dr;

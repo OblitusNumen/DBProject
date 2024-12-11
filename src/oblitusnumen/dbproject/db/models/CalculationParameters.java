@@ -4,6 +4,12 @@ import oblitusnumen.dbproject.db.ColumnName;
 import oblitusnumen.dbproject.db.DBManager;
 
 public class CalculationParameters {
+    @ColumnName("Наименование сборочной единицы")
+    public String NSE = "передача";
+    @ColumnName("Тип сборочной единицы")
+    public String TSE = "ременная";
+    @ColumnName("Вид сборочной единицы")
+    public String VSE = "плоскоременная";
     @ColumnName("Метод определения диаметра меньшего шкива")
     public String m_s = null;
     @ColumnName("Диаметр меньшего шкива")
@@ -83,10 +89,12 @@ public class CalculationParameters {
 
     public void saveAll(DBManager dbManager) {
         Wheel lWheel = new Wheel();
+        lWheel.NAZD = "ведущий";
         lWheel.n = n_1;
         lWheel.d = D_1;
         lWheel.dr = D_1_r;
         Wheel bWheel = new Wheel();
+        bWheel.NAZD = "ведомый";
         bWheel.n = n_2;
         bWheel.d = D_2;
         bWheel.dr = D_2_r;

@@ -4,6 +4,12 @@ import oblitusnumen.dbproject.db.ColumnName;
 import oblitusnumen.dbproject.db.DBManager;
 
 public class AssemblyUnit {
+    @ColumnName("Наименование сборочной единицы")
+    public String NSE = "передача";
+    @ColumnName("Тип сборочной единицы")
+    public String TSE = "ременная";
+    @ColumnName("Вид сборочной единицы")
+    public String VSE = "плоскоременная";
     @ColumnName("Метод определения диаметра меньшего шкива")
     public String m_s = null;
     @ColumnName("Мощность")

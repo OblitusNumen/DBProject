@@ -6,7 +6,7 @@ import java.lang.reflect.Field;
 
 public class Belt {
     @ColumnName("Наименование детали")
-    public String type = "Ремень";
+    public String ND = "Ремень";
     @ColumnName("Скорость")
     public Double v = null;
     @ColumnName("Материал")
@@ -50,7 +50,7 @@ public class Belt {
 
     public Part toPart() {
         Part part = new Part();
-        part.type = type;
+        part.ND = ND;
         part.v = v;
         part.mat = mat;
         part.thick = thick;
