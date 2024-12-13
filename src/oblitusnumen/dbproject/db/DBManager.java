@@ -18,9 +18,13 @@ public class DBManager {
     public DBManager() throws Exception {
         File file = new File(DB_FILENAME);
         String[] split;
-        try (InputStream inputStream = getClass().getResourceAsStream("/.tables")) {
-            split = new String(inputStream.readAllBytes()).split("\n");
-        }
+        split = """
+                    gost-diameter,oblitusnumen.dbproject.db.models.staticmodels.Gost
+                    speed,oblitusnumen.dbproject.db.models.staticmodels.BeltSpeed
+                    diameters-by-belt,oblitusnumen.dbproject.db.models.staticmodels.DiametersByBelt
+                    parts,oblitusnumen.dbproject.db.models.Part
+                    assembly-units,oblitusnumen.dbproject.db.models.AssemblyUnit
+                    """.split("\n");
         for (String s : split) {
             if (s.isEmpty()) continue;
             String[] table = s.split("[\t,]");
