@@ -17,14 +17,15 @@ public class DBManager {
 
     public DBManager() throws Exception {
         File file = new File(DB_FILENAME);
-        String[] split;
-        split = """
-                    gost-diameter,oblitusnumen.dbproject.db.models.staticmodels.Gost
-                    speed,oblitusnumen.dbproject.db.models.staticmodels.BeltSpeed
-                    diameters-by-belt,oblitusnumen.dbproject.db.models.staticmodels.DiametersByBelt
-                    parts,oblitusnumen.dbproject.db.models.Part
-                    assembly-units,oblitusnumen.dbproject.db.models.AssemblyUnit
-                    """.split("\n");
+        List<String> input = new ArrayList<>();
+        try (InputStream inputStream = getClass().getResourceAsStream("/.tables")) {
+            try (Scanner scanner = new Scanner(inputStream)) {
+                while (scanner.hasNext()) {
+                    input.add(scanner.next());
+                }
+            }
+        }
+        String[] split = input.toArray(new String[0]);
         for (String s : split) {
             if (s.isEmpty()) continue;
             String[] table = s.split("[\t,]");
