@@ -1,7 +1,4 @@
-package oblitusnumen.dbproject.db.models;
-
-import oblitusnumen.dbproject.db.ColumnName;
-import oblitusnumen.dbproject.db.DBManager;
+package oblitusnumen.dbproject.db;
 
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
