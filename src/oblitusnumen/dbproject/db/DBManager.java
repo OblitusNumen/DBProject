@@ -246,7 +246,7 @@ public class DBManager {
             }
         };
 
-        private final String type;
+        public final String type;
         private final String sqlType;
 
         Type(String type, String sqlType) {
